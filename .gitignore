@@ -1,0 +1,61 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- OS / editor cruft ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- LaTeX build artifacts ----
+*.aux
+*.log
+*.out
+*.blg
+*.bbl
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.pdf.zst
+*.nav
+*.snm
+*.vrb
+
+# ---- Generated figure outputs (regenerate via the scripts) ----
+figures/*.pdf
+figures/*.png
+figures/*.svg
+figures/*.html

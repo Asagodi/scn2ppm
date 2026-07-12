@@ -1,0 +1,13 @@
+# Runtime dependencies for reproducing all figures in
+# "Spike Coding Networks as Piecewise Projective Maps" (authors withheld).
+#
+# Versions were tested against the environment listed after each pin.
+# Lower bounds are the minimum versions we know to work; feel free to
+# upgrade within the same major line.
+
+numpy>=1.24        # tested with 1.24.2
+scipy>=1.10        # tested with 1.10.0  (optimize.differential_evolution, minimize; linalg.eig; interpolate)
+matplotlib>=3.7    # tested with 3.10.9  (all static PDF figures)
+plotly>=5.20       # tested with 6.9.0   (interactive 3D figures: simon_3d, multistability_3d)
+kaleido>=1.0       # tested with 1.3.0   (Plotly static PDF export via fig.write_image)
+mpmath>=1.3        # high-precision arithmetic for the pi-cascade / fig_pi_approximants

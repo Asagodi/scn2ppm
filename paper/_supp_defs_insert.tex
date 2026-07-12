@@ -1,0 +1,147 @@
+
+
+\section{Formal statements of the classical results used}\label{app:classical-defs}
+
+This appendix collects the formal statements of the classical mathematical results the main paper invokes by name. Each block is compact and self-contained; the main text ef{}'s these labels wherever the corresponding name-drop appears.
+
+\subsection{Positive cone and Birkhoff-Hilbert contraction}\label{sec:supp:hilbert}
+
+% ---------------------------------------------------------------
+% Supplementary block: Birkhoff-Hilbert contraction on a positive cone.
+% Referenced from the main text via \ref{thm:supp:birkhoff-hilbert}.
+% ---------------------------------------------------------------
+
+\begin{definition}[Positive decoder cone]\label{def:supp:positive-cone}
+Given decoder vectors $\{\DD_j\}_{j=1}^{N}\subset\RR^{N}$, the \emph{open positive cone} cut out by the decoder inequalities is
+\[
+\mathcal{C} \;=\; \bigl\{\,\vv{y}\in\RR^{N} : \DD_j^\top\vv{y}>0 \ \text{for all } j=1,\dots,N\,\bigr\}.
+\]
+$\mathcal{C}$ is open, convex, salient, and closed under $\RR_{>0}$-scaling, so it descends to a projective cone $\mathcal{C}/\RR_{>0}$ on the space of rays.
+\end{definition}
+
+\begin{definition}[Hilbert projective metric]\label{def:supp:hilbert}
+For $\vv{y},\vv{z}\in\mathcal{C}$, put
+\[
+M(\vv{y},\vv{z})=\max_{1\le j\le N}\frac{\DD_j^\top\vv{y}}{\DD_j^\top\vv{z}}, \qquad m(\vv{y},\vv{z})=\min_{1\le j\le N}\frac{\DD_j^\top\vv{y}}{\DD_j^\top\vv{z}}.
+\]
+The \emph{Hilbert projective (semi-)metric} on $\mathcal{C}$ is
+\[
+d_H(\vv{y},\vv{z}) \;=\; \log\!\bigl(M(\vv{y},\vv{z})/m(\vv{y},\vv{z})\bigr)\ge 0,
+\]
+which vanishes iff $\vv{y}\parallel\vv{z}$ and is a genuine metric on the ray quotient $\mathcal{C}/\RR_{>0}$ (classical; see the modern exposition around projective contractions in the general framework of \citealt{rhodes1991topologies}).
+\end{definition}
+
+\begin{theorem}[Birkhoff cone contraction; classical]\label{thm:supp:birkhoff-hilbert}
+Let $A:\RR^{N}\to\RR^{N}$ be linear with $A\bigl(\overline{\mathcal{C}}\setminus\{\vv{0}\}\bigr)\subset\mathcal{C}$ (strict cone invariance), and let
+\[
+\Delta \;=\; \sup_{\vv{u},\vv{v}\in A(\mathcal{C})} d_H(\vv{u},\vv{v}) \;<\;\infty
+\]
+be the projective diameter of the image cone. Then $A$ is a strict $d_H$-contraction:
+\[
+d_H(A\vv{y},A\vv{z}) \;\le\; \tanh\!\bigl(\Delta/4\bigr)\, d_H(\vv{y},\vv{z}) \qquad \forall\,\vv{y},\vv{z}\in\mathcal{C},
+\]
+with Lipschitz constant $\tanh(\Delta/4)<1$. In particular, $A$ has a unique fixed ray in $\mathcal{C}$ and every orbit in $\mathcal{C}/\RR_{>0}$ converges to it geometrically (Birkhoff, 1957; classical).
+\end{theorem}
+
+\begin{corollary}[Return-map contraction for SCN itineraries]\label{cor:supp:scn-birkhoff}
+Assume all pairwise decoder cosines are positive, $\DD_j^\top\DD_i>0$ for every $i,j$. Then each SCN transition matrix $\vv{M}_{j\leftarrow i}$ maps $\overline{\mathcal{C}}\setminus\{\vv{0}\}$ into $\mathcal{C}$, and hence, for any admissible periodic itinerary $\sigma=(i_0,i_1,\dots,i_p=i_0)$, the return map
+\[
+\vv{M}_\sigma \;=\; \vv{M}_{i_p\leftarrow i_{p-1}}\cdots\vv{M}_{i_1\leftarrow i_0}
+\]
+is a strict $d_H$-contraction by Theorem~\ref{thm:supp:birkhoff-hilbert}. Consequently $\vv{M}_\sigma$ admits a unique fixed ray $\vv{y}_\sigma^\star\in\mathcal{C}$, and every admissible periodic orbit of the symbolic system is asymptotically stable.
+\end{corollary}
+
+\subsection{Sturmian sequences}\label{sec:supp:sturmian}
+
+\begin{definition}[Mechanical Sturmian sequence]\label{def:supp:sturmian}
+Fix coprime integers $p,q\in\mathbb{N}$ with $\gcd(p,q)=1$ and set $\rho=p/q\in(0,1)$. The \emph{mechanical Sturmian} (or Christoffel) word of slope $\rho$ is
+\[
+  \sigma_{p/q}=(s_0,s_1,\ldots,s_{q-1})\in\{0,1\}^q,\qquad s_k \;=\; \Bigl\lfloor \tfrac{(k+1)p}{q}\Bigr\rfloor-\Bigl\lfloor \tfrac{kp}{q}\Bigr\rfloor,
+\]
+extended $q$-periodically to a bi-infinite sequence. Equivalently, $\sigma_{p/q}$ is the itinerary of $0$ under the rigid rotation $R_\rho:\theta\mapsto\theta+\rho\pmod{1}$ with respect to the length-$\rho$ arc partition $\{[0,1-\rho),[1-\rho,1)\}$ of the circle $\RR/\mathbb{Z}$ \citep{morse1938symbolic,lothaire2002algebraic}.
+\end{definition}
+
+\begin{definition}[Bi-infinite Sturmian sequence]\label{def:supp:sturmian-inf}
+A bi-infinite sequence $\vv{s}\in\{0,1\}^{\mathbb{Z}}$ is \emph{Sturmian} if, for every $n\ge 1$, the number of distinct length-$n$ factors of $\vv{s}$ equals exactly $n+1$. Equivalently, $\vv{s}$ is the coding of an irrational rotation $R_\rho$ ($\rho\in(0,1)\setminus\mathbb{Q}$) by a length-$\rho$ arc partition of $\RR/\mathbb{Z}$; the mechanical words $\sigma_{p/q}$ are the periodic ($\rho\in\mathbb{Q}$) case and any irrational Sturmian is a limit of the mechanical words $\sigma_{p_n/q_n}$ associated to the continued-fraction convergents $p_n/q_n\to\rho$ \citep{morse1940symbolic,lothaire2002algebraic}.
+\end{definition}
+
+\begin{theorem}[Sturmian = balanced binary]\label{thm:supp:sturmian-balanced}
+A binary word $\vv{s}\in\{0,1\}^{\mathbb{Z}}$ is Sturmian if and only if it is \emph{balanced}, i.e., for every pair of factors $u,v$ of $\vv{s}$ with $|u|=|v|$, one has $\bigl||u|_1-|v|_1\bigr|\le 1$, where $|w|_1$ denotes the number of $1$s in $w$. In particular, the mechanical words $\sigma_{p/q}$ are exactly the periodic balanced binary words, and their slope $\rho=p/q$ coincides with the asymptotic density of $1$s \citep{coven1973sequences,lothaire2002algebraic}.
+\end{theorem}
+
+\subsection{Morse-Hedlund coding of a rotation}\label{sec:supp:morse-hedlund}
+
+\begin{definition}[Morse--Hedlund coding of a rotation]\label{def:supp:morse-hedlund-coding}
+Let $R_\rho:S^1\to S^1$, $x\mapsto x+\rho\pmod 1$, be the rigid rotation by $\rho\in[0,1)$, and let $\{I_0,I_1\}$ be the two-cell partition $I_0=[0,1-\rho)$, $I_1=[1-\rho,1)$ (any length-$\rho$ arc and its complement will do). The \emph{Morse--Hedlund coding} of the orbit of $x_0\in S^1$ is the one-sided sequence
+\[
+\sigma(x_0)\;=\;(s_0,s_1,s_2,\ldots)\in\{0,1\}^{\mathbb{N}},\qquad s_k\;=\;\mathbf{1}_{I_1}\!\bigl(R_\rho^{k}(x_0)\bigr),
+\]
+so that $s_k$ records which cell of the partition contains the $k$-th iterate \citep{morse1940symbolic,lothaire2002algebraic}.
+\end{definition}
+
+\begin{theorem}[Morse--Hedlund complexity of rotation codings]\label{thm:supp:morse-hedlund}
+Let $\sigma(x_0)$ be the coding of Definition~\ref{def:supp:morse-hedlund-coding} and let $p_n(\sigma):=\#\{\text{distinct factors of length }n\text{ in }\sigma\}$ be its factor-complexity function.
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+    \item If $\rho\notin\mathbb{Q}$, then for every $x_0$ the sequence $\sigma(x_0)$ is \emph{Sturmian}, i.e.\ it is aperiodic and
+    \[
+        p_n(\sigma)\;=\;n+1\qquad\text{for all } n\ge 0.
+    \]
+    \item If $\rho=p/q$ in lowest terms, then $\sigma(x_0)$ is purely periodic with period $q$, and for generic $x_0$ it coincides with the mechanical (rational Sturmian) word $\sigma_{p/q}$ defined by $s_k=\lfloor (k+1)p/q\rfloor-\lfloor kp/q\rfloor$.
+\end{enumerate}
+Conversely, every Sturmian sequence arises, up to a choice of intercept, as a coding of some irrational rotation \citep{morse1938symbolic,morse1940symbolic,lothaire2002algebraic}.
+\end{theorem}
+
+\begin{remark}
+The main text invokes Definition~\ref{thm:supp:morse-hedlund} when identifying the SCN's next-firer partition with a rotation-aligned coding: the identity of the neuron that spikes at step $k$ plays the role of $s_k$, so the low-complexity growth $p_n=n+1$ (irrational $\rho$) or eventual $q$-periodicity (rational $\rho$) is exactly the symbolic signature the network inherits from the underlying rotation.
+\end{remark}
+
+\subsection{The Rhodes--Thompson class $\mathcal{L}$ and rotation numbers of piecewise-monotone circle maps}
+\label{sec:supp:rhodes-thompson}
+
+\begin{definition}[The class $\mathcal{L}$]\label{def:rhodes-thompson-class}
+Let $\mathcal{L}$ denote the set of maps $\widetilde F:\RR\to\RR$ such that (i) $\widetilde F$ is non-decreasing, (ii) $\widetilde F(x+1)=\widetilde F(x)+1$ for all $x\in\RR$, and (iii) $\widetilde F$ is upper semi-continuous. Each $\widetilde F\in\mathcal{L}$ is the lift of a (possibly discontinuous) degree-$1$ non-decreasing circle map $F:\mathcal{C}/\mathbb{Z}\to\mathcal{C}/\mathbb{Z}$; jump discontinuities are permitted \citep{rhodes1991topologies}.
+\end{definition}
+
+\begin{definition}[Rotation number]\label{def:rotation-number}
+For $\widetilde F\in\mathcal{L}$ the \emph{rotation number} is
+\[
+\rho(\widetilde F)\;:=\;\lim_{n\to\infty}\frac{\widetilde F^{n}(x)-x}{n}\pmod 1 ,
+\]
+which exists and is independent of $x\in\RR$ \citep{poincare1885courbes,rhodes1991topologies}.
+\end{definition}
+
+\begin{theorem}[Rhodes--Thompson, extending Poincar\'e]\label{thm:supp:rhodes-thompson}
+Equip $\mathcal{L}$ with the sup-norm topology $\|\widetilde F_1-\widetilde F_2\|_\infty=\sup_{x\in[0,1]}|\widetilde F_1(x)-\widetilde F_2(x)|$. Then $\rho:\mathcal{L}\to[0,1]$ is continuous and monotone in $\widetilde F$. Moreover, for any one-parameter family $\{\widetilde F_\alpha\}\subset\mathcal{L}$ depending monotonically and continuously on $\alpha$, the map $\alpha\mapsto\rho(\widetilde F_\alpha)$ is a \emph{devil's staircase}: each rational value $p/q\in\mathbb{Q}\cap[0,1]$ is attained on a closed interval (possibly a point) of $\alpha$, and each irrational value is attained at a unique $\alpha$ \citep{rhodes1991topologies,alseda2000combinatorial,herman1979conjugaison}.
+\end{theorem}
+
+\begin{remark}[Application to the SCN first-return map]\label{rem:supp:scn-rhodes}
+For $K=2$ the SCN first-return map $F_{\!\Bsp_0;\alpha_1}$ on the boundary arc admits a degree-$1$ lift $\widetilde F_{\alpha_1}$ that is piecewise a M\"obius restriction and, by the cone-contraction argument of the main text, non-decreasing with at most one jump per fundamental domain. Hence $\widetilde F_{\alpha_1}\in\mathcal{L}$, and Theorem~\ref{thm:supp:rhodes-thompson} applied to the family $\alpha_1\mapsto\widetilde F_{\alpha_1}$ yields the staircase structure of $\rho(\alpha_1)$ asserted in Theorem~\ref{thm:staircase}.
+\end{remark}
+
+\subsection{Davis-Kahan eigenvector perturbation}\label{sec:supp:davis-kahan}
+
+\begin{theorem}[Davis-Kahan eigenvector perturbation, non-symmetric analogue]\label{thm:supp:davis-kahan}
+Let $\vv{M}\in\RR^{N\times N}$ have simple eigenvalue $\mu_1$ with right eigenvector $\vv{u}_1$ and left eigenvector $\vv{w}_1^\top$ normalised by $\vv{w}_1^\top\vv{u}_1=1$, and let $\{(\mu_k,\vv{u}_k,\vv{w}_k^\top)\}_{k=2}^{N}$ denote the remaining biorthogonal eigen-triples ($\vv{w}_j^\top\vv{u}_k=\delta_{jk}$). Under a perturbation $\delta\vv{M}$ with $\|\delta\vv{M}\|$ small compared to the spectral gap $|\mu_1-\mu_2|$, the leading right eigenvector shifts, to first order, by
+\begin{equation}
+\delta\vv{u}_1 \;=\; \sum_{k=2}^{N}\frac{\vv{w}_k^\top(\delta\vv{M})\vv{u}_1}{\mu_1-\mu_k}\,\vv{u}_k,
+\end{equation}
+so that, writing $\vv{S}=[\vv{u}_1\mid\cdots\mid\vv{u}_N]$ for the right-eigenvector matrix and $\kappa(\vv{S})=\|\vv{S}\|\|\vv{S}^{-1}\|$ for its condition number,
+\begin{equation}
+\|\delta\vv{u}_1\| \;\lesssim\; \frac{\kappa(\vv{S})}{|\mu_1-\mu_2|}\,\|\delta\vv{M}\|.
+\end{equation}
+This is the non-normal generalisation of the classical symmetric $\sin\theta$ theorem \citep{davis1970rotation}, obtained by replacing orthogonal projectors onto invariant subspaces by oblique (biorthogonal) ones; see \citep[Chapter V]{stewart1990matrix}. Applied to the SCN slow map, it is exactly the tolerance bound~\eqref{eq:tolerance} controlling how far the orbit-defining leading eigenvector of $\vv{M}$ may drift under parameter perturbations.
+\end{theorem}
+
+\subsection{Arnold tongues and the devil's staircase (general)}\label{sec:supp:arnold}
+
+\begin{theorem}[Arnold tongues and the devil's staircase]\label{thm:supp:arnold-tongue}
+Let $\{F_\alpha\}_{\alpha\in[0,1]}$ be a one-parameter family of orientation-preserving degree-$1$ circle homeomorphisms $F_\alpha:S^1\to S^1$ depending continuously and (weakly) monotonically on $\alpha$, and let $\rho(F_\alpha)\in[0,1]$ denote the Poincar\'e rotation number. Assume the family is nontrivially nonlinear (i.e.\ not conjugate to a rigid-rotation family). Then:
+\begin{enumerate}
+\item[(i)] \emph{Mode locking.} For every rational $p/q\in[0,1]\cap\mathbb{Q}$ the level set $I_{p/q}:=\{\alpha\in[0,1]:\rho(F_\alpha)=p/q\}$ is a closed interval of strictly positive Lebesgue measure, $|I_{p/q}|>0$; these Arnold tongues cover a full-measure open dense subset $\Bsp\subset[0,1]$.
+\item[(ii)] \emph{Devil's staircase.} The map $\alpha\mapsto\rho(F_\alpha)$ is continuous, nondecreasing, and locally constant on $\Bsp$, hence a Cantor function. Irrational rotation numbers are attained on the residual Lebesgue-null Cantor set $[0,1]\setminus\Bsp$.
+\item[(iii)] \emph{Farey ordering.} If $p/q,\,p'/q'\in\mathbb{Q}$ are Farey neighbours, $|pq'-p'q|=1$, then the tongue at the mediant $(p+p')/(q+q')$ lies strictly between $I_{p/q}$ and $I_{p'/q'}$, and its width scales as $|I_{(p+p')/(q+q')}|=O(1/q_{\max}^{2})$ with $q_{\max}=q+q'$ in the near-linear regime \citep{arnold1961small}.
+\end{enumerate}
+\end{theorem}
+
+\noindent This is Arnold's classical result on small denominators for circle diffeomorphisms \citep{arnold1961small}; the residual-Cantor characterisation of the irrational locus and its zero measure follow from Denjoy--Herman theory \citep{herman1979conjugaison}. In the main text we apply (i)--(ii) to the induced circle map on the SCN's invariant loop to obtain the plateau widths in Theorem~\ref{thm:staircase}, and use the Farey $1/q^{2}$ scaling of (iii) as the quantitative form of the mediant prediction stated in the Discussion.
+
