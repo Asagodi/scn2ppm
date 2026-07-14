@@ -54,6 +54,9 @@ Thumbs.db
 *.snm
 *.vrb
 
+# ---- Compiled paper output (rebuild via pdflatex; see README) ----
+paper/*.pdf
+
 # ---- Generated figure outputs (regenerate via the scripts) ----
 figures/*.pdf
 figures/*.png
