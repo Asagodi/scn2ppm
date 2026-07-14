@@ -1,0 +1,359 @@
+% A0 portrait poster.
+\documentclass[25pt, a0paper, portrait, margin=15mm, innermargin=15mm,
+               blockverticalspace=12mm, colspace=12mm, subcolspace=8mm]{tikzposter}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amssymb, amsmath, amsfonts, mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\graphicspath{{figures/}{./}}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, decorations.pathreplacing}
+\usepackage{enumitem}
+\usepackage{multicol}
+\setlist[itemize]{leftmargin=*, itemsep=1pt, topsep=1pt, parsep=0pt}
+\setlist[enumerate]{leftmargin=*, itemsep=1pt, topsep=1pt, parsep=0pt}
+
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\vv}[1]{\mathbf{#1}}
+\newcommand{\DD}{\vv{D}}
+\newcommand{\yy}{\vv{y}}
+\newcommand{\xx}{\vv{x}}
+\newcommand{\xxi}{\boldsymbol{\xi}}
+\newcommand{\Bsp}{\mathcal{B}}
+
+\definecolor{navy}{HTML}{152B4A}
+\definecolor{ink}{HTML}{1F2A3A}
+\definecolor{accent}{HTML}{00008C}
+\definecolor{accentsoft}{HTML}{DCE0F0}
+\definecolor{cream}{HTML}{FAF6EE}
+\definecolor{paper}{HTML}{FFFFFF}
+\definecolor{rule}{HTML}{D6D2C7}
+\definecolor{muted}{HTML}{6E6A60}
+
+\usetheme{Default}\useblockstyle{Default}\usetitlestyle{Empty}\usebackgroundstyle{Empty}
+\colorlet{backgroundcolor}{cream}\colorlet{framecolor}{cream}
+\colorlet{titlebgcolor}{cream}\colorlet{titlefgcolor}{navy}
+\colorlet{blocktitlebgcolor}{cream}\colorlet{blocktitlefgcolor}{navy}
+\colorlet{blockbodybgcolor}{paper}\colorlet{blockbodyfgcolor}{ink}
+\colorlet{innerblocktitlebgcolor}{accentsoft}\colorlet{innerblocktitlefgcolor}{navy}
+
+\defineblockstyle{Editorial}{
+  titlewidthscale=1, bodywidthscale=1, titleleft,
+  titleoffsetx=0pt, titleoffsety=0pt, bodyoffsetx=0pt, bodyoffsetx=0pt,
+  bodyverticalshift=2mm, roundedcorners=0, linewidth=0pt,
+  titleinnersep=0pt, bodyinnersep=4pt
+}{
+  \draw[draw=rule, fill=blockbodybgcolor, line width=0.6pt]
+       (blockbody.south west) rectangle (blockbody.north east);
+}
+\useblockstyle{Editorial}
+
+\newcommand{\stepbadge}[1]{%
+  \tikz[baseline=(N.base)]{
+    \node[circle, fill=accent, text=white, font=\sffamily\bfseries\large,
+          inner sep=0pt, minimum size=1.4em] (N) {#1};}%
+}
+\newcommand{\bt}[2]{{\stepbadge{#1}\hspace{0.5em}\sffamily\bfseries\color{navy}\MakeUppercase{#2}}}
+\newcommand{\btnonum}[1]{{\rule[-0.4em]{0pt}{1.7em}\sffamily\bfseries\color{navy}\MakeUppercase{#1}}}
+
+\settitle{%
+  \noindent
+  \begin{minipage}[t]{0.415\textwidth}\vspace{0pt}
+    \raggedright
+    {\color{navy}\bfseries\fontsize{52}{58}\selectfont
+       Spike Coding Networks \\ as Piecewise Projective Maps\par}
+    \vspace*{5mm}
+    {\color{ink}\large \'Abel S\'agodi \;\textbullet\; William Podlaski \;\textbullet\; Ildefonso Ferreira Pica\par}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.56\textwidth}\vspace{2mm}
+    % --- Calaim-style SCN schematic (replaces former equation box) ---
+    \noindent\makebox[\linewidth][c]{%
+      \begin{tikzpicture}[font=\large, >=Stealth, x=3.0cm, y=1.6cm]
+        % border
+        \draw[accent, line width=1pt, rounded corners=0pt]
+            (-0.20, -1.30) rectangle (9.50, 2.45);
+        \begin{scope}
+          \definecolor{nGr}{HTML}{8A8A8A}
+          % Match the two-neuron colors used throughout the poster (B1=red, B2=blue)
+          \definecolor{nBl}{HTML}{2980B9}
+          \definecolor{nRe}{HTML}{E74C3C}
+
+          % column headers (centered above each panel)
+          \node[font=\large\bfseries, navy] at (0.70, 2.15) {input $\xx$};
+          \node[font=\large\bfseries, navy] at (3.50, 2.15) {spikes $\vv{s}$};
+          \node[font=\large\bfseries, navy] at (6.05, 2.15) {weights $\DD$};
+          \node[font=\large\bfseries, navy] at (8.30, 2.15) {readout $\hat{\xx}$};
+
+          % --- input signals (panel 1: x in [0, 1.4]) ---
+          \draw[ink, line width=1.4pt]
+              (0,0.55) .. controls (0.25,0.80) and (0.45,0.25) ..
+              (0.70,0.55) .. controls (0.95,0.85) and (1.20,0.30) .. (1.40,0.50);
+          \draw[ink, line width=1.4pt]
+              (0,-0.45) .. controls (0.22,-0.70) and (0.48,-0.15) ..
+              (0.70,-0.40) .. controls (0.95,-0.60) and (1.20,-0.20) .. (1.40,-0.50);
+
+          % --- ? arrow gap (x in [1.5, 2.5]): ? stacked clearly above arrow ---
+          \node[font=\LARGE\bfseries, anchor=south, navy] at (2.00, 0.10) {?};
+          \draw[->, navy, line width=1.6pt] (1.65, -0.40) -- (2.35, -0.40);
+
+          % --- spike raster (panel 2: x in [2.7, 4.3], 4 rows) ---
+          \foreach \t in {0.05,0.55,1.05,1.45}
+              \draw[nGr, line width=1.4pt] (2.70+\t,0.85) -- (2.70+\t,1.10);
+          \foreach \t in {0.04,0.18,0.32,0.46,0.62,0.78,0.92,1.08,1.24,1.40,1.55}
+              \draw[nBl, line width=1.4pt] (2.70+\t,0.30) -- (2.70+\t,0.55);
+          \foreach \t in {0.20,0.55,0.90,1.20,1.50}
+              \draw[nGr, line width=1.4pt] (2.70+\t,-0.25) -- (2.70+\t,0.00);
+          \foreach \t in {0.03,0.13,0.23,0.34,0.45,0.57,0.68,0.80,0.92,1.05,1.18,1.30,1.42,1.54}
+              \draw[nRe, line width=1.4pt] (2.70+\t,-0.80) -- (2.70+\t,-0.55);
+
+          % --- weights D (panel 3: 4 source dots, 2 readout dots) ---
+          % absolute-mm radii so dots stay circular under anisotropic x/y units
+          \foreach \y/\col in {0.97/nGr,0.42/nBl,-0.13/nGr,-0.67/nRe}
+              \fill[\col] (5.40,\y) circle [radius=2.5mm];
+          \fill[navy] (6.80,0.45) circle [radius=3mm];
+          \fill[navy] (6.80,-0.30) circle [radius=3mm];
+          % background decoder weights (faded)
+          \foreach \y in {0.97,0.42,-0.13}{
+              \draw[nGr, opacity=0.35, line width=0.7pt] (5.50,\y) -- (6.70,0.45);
+              \draw[nGr, opacity=0.35, line width=0.7pt] (5.50,\y) -- (6.70,-0.30);}
+          % highlighted Di = orange (bottom neuron); same dot size as others
+          \draw[nRe, line width=1.8pt] (5.50,-0.67) -- (6.70,0.45);
+          \draw[nRe, line width=1.8pt] (5.50,-0.67) -- (6.70,-0.30);
+
+          % --- readout signals (panel 4: x in [7.6, 9.0]) ---
+          \draw[ink, line width=1.4pt]
+              (7.60,0.55) .. controls (7.85,0.80) and (8.05,0.25) ..
+              (8.30,0.55) .. controls (8.55,0.85) and (8.80,0.30) .. (9.00,0.50);
+          \draw[ink, line width=1.4pt]
+              (7.60,-0.45) .. controls (7.82,-0.70) and (8.08,-0.15) ..
+              (8.30,-0.40) .. controls (8.55,-0.60) and (8.80,-0.20) .. (9.00,-0.50);
+        \end{scope}
+      \end{tikzpicture}%
+    }
+  \end{minipage}%
+  \\[6mm]
+  \noindent\begin{minipage}{\linewidth}
+    {\sffamily\bfseries\large\color{accent}TL;DR.}\;
+    {\color{ink}\normalsize
+      SCN dynamics reduce \emph{exactly} to a piecewise \textbf{projective map}
+      $\xxi'=(\vv{A}\xxi+\vv{b})/(\vv{c}^\top\xxi+d)$ on the spike-bound hyperplanes.
+      Composing per-spike matrices along a firing word $\sigma$ yields a \textbf{symbolic return map} $\vv{M}_\sigma$; its leading eigenvector is the periodic orbit.
+      The \emph{inverse problem}, finding drives $\bm{\alpha}$ that realize a desired $\sigma$, has an analytical solution.}
+  \end{minipage}%
+}
+
+\tikzposterlatexaffectionproofoff
+\title{~}\author{~}\institute{~}
+
+\begin{document}
+\maketitle[width=0.97\textwidth, titletotopverticalspace=5mm,
+          titletoblockverticalspace=6mm]
+
+% ============================================================
+% ROW 1: Setup + Projective Map (MERGED, full width)
+% ============================================================
+\begin{columns}
+\column{1.0}
+\block{\bt{1}{Setup \& The Projective Map}}{
+\begin{minipage}[t]{0.6\linewidth}\vspace{0pt}\normalsize
+$M$ neurons encode $\xx\in\reals^N$ via readout $\yy = \vv{D}\vv{r}$~\ref{ref:boerlin}, \ref{ref:calaim}:
+decay $\dot\yy = -\lambda\yy$; spike $\yy \mapsto \yy + \DD_i$ at $\DD_i^\top\yy = \alpha_i$.
+
+\vspace{1mm}
+Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\Bsp_i$: $\yy = \alpha_i\DD_i + \vv{U}_i\xxi$, where $\xxi\in\reals^{N-1}$ is the tangent coordinate. The full dynamics is a \textbf{piecewise projective map} on the disjoint union $\bigsqcup_i \Bsp_i$. %: a point on $\Bsp_i$ is mapped to the next firing bound $\Bsp_j$ via the formula below.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.38\linewidth}\vspace{0pt}\normalsize
+\colorbox{accentsoft}{\parbox{0.96\linewidth}{%
+  \vspace{1.5mm}\centering\normalsize
+  $\displaystyle\xxi_j = \alpha_j\,\frac{(\alpha_i{+}1)\vv{w}_{ji}+\vv{R}_{ji}\,\xxi_i}{(\alpha_i{+}1)\cos\psi_{ji}+\vv{v}_{ji}^\top\xxi_i}$
+  \quad
+  $\vv{M}_{j\leftarrow i} {=} \begin{pmatrix} \alpha_j\vv{R}_{ji} & \alpha_j(\alpha_i{+}1)\vv{w}_{ji} \\ \vv{v}_{ji}^\top & (\alpha_i{+}1)\cos\psi_{ji} \end{pmatrix}$
+  \vspace{1.5mm}
+}}
+\end{minipage}
+
+\vspace{3mm}
+{\small\textbf{\color{navy}Inter-bound geometry.}\;
+ With $\vv{U}_i$ the tangent frame of $\Bsp_i$ (its $N{-}1$ columns span the hyperplane):
+ $\cos\psi_{ji}=\DD_j^\top\DD_i$ (decoder cosine);\;
+ $\vv{v}_{ji}=\vv{U}_i^\top\DD_j$, $\;\vv{w}_{ji}=\vv{U}_j^\top\DD_i$ (decoders projected into the tangent frames);\;
+ $\vv{R}_{ji}=\vv{U}_j^\top\vv{U}_i$ (maps tangent frame $i\!\to\!j$).\par}
+
+\vspace{4mm}
+\centering
+\includegraphics[width=0.98\linewidth]{derivation_tikz.pdf}
+}
+\end{columns}
+
+% ============================================================
+% ROW 2: Orbits = Eigenvectors (FULL WIDTH)
+% ============================================================
+\begin{columns}
+\column{1.0}
+\block{\bt{2}{Orbits = Eigenvectors of the Return Map}}{
+\begin{minipage}[t]{\linewidth}\normalsize
+For a firing word $\sigma=(b_0,\ldots,b_{L-1})$, composing the per-spike matrices $\vv{M}_{b_{k+1}\leftarrow b_k}$ gives the \textbf{symbolic return map}
+$\vv{M}_\sigma = \prod_{k} \vv{M}_{b_{k+1}\leftarrow b_k} \in \reals^{N\times N}$, which propagates the tangent coordinate $\xxi\in\Bsp_{b_0}$ once around the cycle.\quad
+\textbf{Periodic orbit $\leftrightarrow$ eigenvector.} Picture the homogeneous coordinate $\tilde\xxi=(\xxi^{*\top},1)^\top$ as a ray through the origin of $\reals^N$, and $\xxi^*$ as the unique point where this ray pierces the affine slice $\{x_N{=}1\}$. A period-$L$ cycle returns the ray to itself, $\vv{M}_\sigma\tilde\xxi^*=\mu_1\tilde\xxi^*$: $\xxi^*$ is the dehomogenization of the dominant eigenvector. The scale $\mu_1$ does not move the pierce point and cancels.\par
+\textbf{Stability spectrum.} The return map $F=\mathrm{dh}\circ\vv{M}_\sigma$ on $\Bsp_{b_0}$ has, at its fixed point $\xxi^*$, a Jacobian with $N{-}1$ eigenvalues. Numerator $\mu_k$ along a transverse eigenvector $\vv{v}_k$, denominator $\mu_1$ along the fixed ray: the displacement on the slice is multiplied by the ratio $\mu_k/\mu_1$, one per independent perturbation direction. The orbit attracts iff every multiplier is inside the unit disk: $|\mu_k/\mu_1|<1$ for $k\ge 2$.
+
+\vspace{1mm}
+\btnonum{Cobweb.}\;
+First-return map $F:\Bsp_1\to\Bsp_1$ has two M\"obius branches (self \& cross) joined at the partition point $\xi_{\mathrm{part}}$. Period-$L$ orbit visits $\Bsp_1$ a subset of times $\Rightarrow$ cobweb cycle.
+
+\vspace{1mm}
+\btnonum{Devil's staircase.}\;
+Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\ref{ref:herman}. Period-$1\to 2$ boundary: $\alpha_j = \alpha_i\cos\psi_{ji}$.
+\end{minipage}
+}
+\end{columns}
+
+% ============================================================
+% ROW 3: Two-Neuron Overview (FULL WIDTH)
+% ============================================================
+\begin{columns}
+\column{1.0}
+\block{\bt{3}{Two-Neuron Overview}}{
+\begin{minipage}[t]{\linewidth}
+\centering
+\includegraphics[width=0.98\linewidth]{fig1.pdf}
+\end{minipage}
+}
+\end{columns}
+
+% ============================================================
+% ROW 3: Scaling across (M, N)
+% ============================================================
+\begin{columns}
+\column{1.0}
+\block{\bt{4}{Scaling: Exact Across $(M, N)$}}{
+\begin{minipage}[t]{\linewidth}\normalsize
+The eigenvector orbit and decay rate $|\mu_2/\mu_1|^{n/L}$ are \emph{exact} regardless
+of $M$ (neurons) or $N$ (input dim). Bands $=$ 5--95 \& 25--75 pctl.\ over 200 random
+initial conditions; dashed line $=$ analytical prediction.
+
+\vspace{1mm}
+\centering
+\includegraphics[width=0.86\linewidth]{scaling_convergence.pdf}
+\end{minipage}
+}
+\end{columns}
+
+% ============================================================
+% ROW 4: 3D Example | Inverse Problem
+% ============================================================
+\begin{columns}
+\column{0.5}
+\block{\bt{5}{Three-Neuron Example}}{
+\begin{minipage}[t]{\linewidth}
+\centering
+\includegraphics[width=0.98\linewidth]{fig_3d_example.pdf}
+
+\vspace{2mm}
+\colorbox{navy!7}{\parbox{0.96\linewidth}{%
+  \vspace{1mm}\normalsize
+  \textbf{\color{navy}Multistability.}\;
+  Firing ratios $\rho_j$ vs.\ $\alpha_3$, colors $=$ R/B/G for $\rho_1/\rho_2/\rho_3$; points at $\rho{=}1$ mark $\alpha_3$ ranges where self-trapping coexists with the predicted orbit.
+  \vspace{1mm}
+}}
+\end{minipage}
+}
+
+\column{0.5}
+\block{\bt{6}{Inverse Problem}}{
+\begin{minipage}[t]{\linewidth}\normalsize
+\textbf{Given} a firing word $\sigma$, \textbf{find} drives $\bm{\alpha}$ that realize it.
+
+\vspace{1mm}
+\textbf{Admissibility margin} (worst-case target $-$ competitor gap):
+\[
+  m(\bm{\alpha}) = \min_{k}\;\bigl(
+    c_{b_{k+1},k} - \max_{j\neq b_{k+1}} c_{j,k}
+  \bigr)
+\]
+$m{>}0$ realizes the word; maximize $m$ for robustness.
+
+\vspace{1mm}
+{\centering\includegraphics[width=0.98\linewidth]{wm_figure.pdf}\par}
+
+\vspace{2mm}
+{\centering
+\setlength{\fboxsep}{2pt}%
+\colorbox{accentsoft}{\parbox{0.96\linewidth}{%
+  \normalsize
+  \textbf{\color{accent}Working memory.}\;
+  Margin shrinks with word length $\Rightarrow$ matches the behavioral $4{\pm}1$ limit~\ref{ref:cowan}.
+  Same $(\vv{D},\bm{\alpha})$ stores multiple words (\emph{multistability}); varying $\xx$ navigates the staircase to switch between stored items.
+  \emph{Storage is closed-form}: the drives $\bm{\alpha}$ are read off the linear program.
+  \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map, so the orbit unfolds from any initial state in the basin.%
+}}\par}
+\end{minipage}
+}
+\end{columns}
+
+% ============================================================
+% (Old Row 4: Sequence Memory) — merged into Box 6 above
+% ROW 5: Bottom three blocks (pulled up slightly)
+% ============================================================
+% Pull the last row up. tikzposter sets \TP@blocktop from the previous
+% \TP@colbottom at \begin{columns}; bumping it (positive y = up) shifts
+% the next row's blocks higher.
+\makeatletter
+\global\advance\TP@blocktop by 20mm
+\global\TP@colbottom=\TP@blocktop
+\makeatother
+\begin{columns}
+\column{0.25}
+\block{\btnonum{Takeaways}}{
+\begin{minipage}[t][4.6cm][t]{\linewidth}\normalsize
+\begin{itemize}[label={\color{accent}\textbullet}]
+  \item Precompile $K^2$ matrices: $O(K^2N^2)$
+    \item Compile-then-query
+%  \item Orbit: $O(N^3)$ eigendecomp.
+  \item No simulation, no ODE solver
+  \item Closed-form stability $|\mu_2/\mu_1|$
+  \item Margin $m$ = closed-form robustness
+  \item Inverse problem $\Rightarrow$ linear program for $\bm{\alpha}$
+\end{itemize}
+\end{minipage}
+}
+\column{0.25}
+\block{\btnonum{Discussion}}{
+\begin{minipage}[t][4.6cm][t]{\linewidth}\normalsize
+\begin{itemize}[label={\color{accent}\textbullet}]
+  \item Full-dim spike maps~\ref{ref:monteforte}; we add projective reduction
+  \item Forced mode-locking~\ref{ref:coombes}; ours intrinsic
+  \item UAP construction~ \ref{ref:podlaski},\ref{ref:sagodi26}
+   \item No continuous attractors~\ref{ref:sagodi24}
+  \item Chaos~\ref{ref:vreeswijk},\ref{ref:jahnke} if  $|\mu_2/\mu_1|\!>\!1$ % closed-form from the return-map spectrum
+\end{itemize}
+\end{minipage}
+}
+\column{0.5}
+\block{\btnonum{References}}{
+\begin{minipage}[t][4.6cm][t]{\linewidth}\normalsize
+\begin{multicols}{2}
+\begin{enumerate}[label=\textbf{\color{accent}[\arabic*]}, leftmargin=*, itemsep=0pt, ref={[\arabic*]}]
+  \item\label{ref:boerlin} Boerlin \emph{et al.}, \emph{PLoS CB} '13
+  \item\label{ref:calaim} Calaim \emph{et al.}, \emph{eLife} '22
+    \item\label{ref:arnold} Arnold, \emph{Izv.\ Akad.\ Nauk SSSR} '61
+  \item\label{ref:herman} Herman, \emph{Publ.\ IH\'ES} '79
+    \item\label{ref:cowan} Cowan, \emph{Behav.\ Brain Sci.} '01
+  \item\label{ref:monteforte} Monteforte \& Wolf, \emph{PRX} '10
+  \item\label{ref:coombes} Coombes \& Bressloff, \emph{PRE} '99
+  \item\label{ref:podlaski} Podlaski \& Machens, \emph{Neural Comp.} '24
+  \item\label{ref:sagodi26} S\'agodi \& Park, \emph{arXiv} '26
+  \item \label{ref:sagodi24} S\'agodi \emph{et al.}, \emph{NeurIPS} '24
+    \item\label{ref:vreeswijk} van Vreeswijk \& Sompolinsky, \emph{Sci.} '96
+  \item\label{ref:jahnke} Jahnke \emph{et al.}, \emph{PRL} '08
+\end{enumerate}
+\end{multicols}
+\end{minipage}
+}
+\end{columns}
+
+
+
+\end{document}
