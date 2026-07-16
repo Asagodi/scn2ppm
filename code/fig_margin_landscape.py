@@ -24,6 +24,7 @@ WORDS = [
     ([0, 0, 1],                   r'$\sigma = (1,1,2)$'),
     ([0, 0, 1, 0, 0, 0, 1],       r'$\sigma = (1,1,2,1,1,1,2)$'),
 ]
+PANEL_SUBTITLES = ['Short word (L=3)', 'Long word (L=7)']
 
 # Compute both margin grids first so we can share vmin/vmax on the colorbar.
 n_grid = 150
@@ -83,7 +84,8 @@ for panel, (word, title) in enumerate(WORDS):
     ax.set_xticks([0, 1, 2])
     ax.set_yticks([0, 1, 2])
     ax.tick_params(labelsize=15)
-    style.panel_label(ax, chr(ord('a') + panel))
+    style.panel_label(ax, chr(ord('a') + panel),
+                       subtitle=PANEL_SUBTITLES[panel], fontsize=16, y=1.02)
 
 # ── Shared colorbar with 3 hand-labelled ticks and a separate scientific
 # multiplier drawn above the "m" label so it never touches the ticks. ──

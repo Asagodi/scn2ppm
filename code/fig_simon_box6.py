@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 import scn
+import style
 
 try:
     import style
@@ -177,6 +178,10 @@ try:
     ax.set_box_aspect([1, 1, 1])
 except Exception:
     pass
+
+# Panel label (c) so this figure reads as continuation of the (a)/(b)
+# margin_landscape panels shown to its left in Box 6.
+style.panel_label(ax, 'c', subtitle='RBYGYB orbit', fontsize=16, y=1.0)
 
 _here = os.path.dirname(os.path.abspath(__file__))
 _out = os.path.normpath(os.path.join(_here, '..', 'figures', 'simon_rbygyb.pdf'))
