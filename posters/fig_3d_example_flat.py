@@ -204,12 +204,22 @@ try:
 except TypeError:
     pass  # older mpl: zoom kwarg unsupported
 
-# Unified panel subtitles: axes-fraction "loc='left'" title anchored at
-# the same y across all four panels. fontsize=21 matches derivation_tikz's
-# \Large\bfseries when both figures are scaled to \linewidth on the poster.
+# Panel subtitles in ABSOLUTE FIGURE COORDS. ax.set_title() on Axes3D
+# anchors to the projected-cube region rather than the axes rectangle,
+# so it ends up on a different figure-y than the 2D panels. Placing
+# labels via fig.text at each ax's bbox top guarantees identical y across
+# 3D and 2D axes. fontsize=30 matches derivation_tikz's \Large\bfseries
+# once this figure is rendered at 0.70*linewidth in Box 4.
+fig.canvas.draw()  # finalize axes positions before reading bboxes
 _SUB = ['3D geometry', 'Return-map trace', 'Convergence', "Devil's staircase"]
-for _ax, _l, _s in zip([ax1, ax2, ax3, ax4], list('abcd'), _SUB):
-    style.panel_label(_ax, _l, subtitle=_s, fontsize=21, y=1.02)
+_axes4 = [ax1, ax2, ax3, ax4]
+_tops = [ax.get_position().y1 for ax in _axes4]
+_ytxt = max(_tops) + 0.03  # common y just above the tallest axes bbox
+for _ax, _l, _s in zip(_axes4, list('abcd'), _SUB):
+    _bb = _ax.get_position()
+    fig.text(_bb.x0, _ytxt,
+             r'$\mathbf{(' + _l + r')}$\ \textbf{' + _s + '}',
+             fontsize=30, fontweight='bold', va='bottom', ha='left')
 import os
 _here = os.path.dirname(os.path.abspath(__file__))
 _out = os.path.normpath(os.path.join(_here, '..', 'figures', 'fig_3d_example_flat.pdf'))

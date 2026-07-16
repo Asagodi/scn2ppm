@@ -286,13 +286,19 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 $m{>}0$ realizes the word; maximize $m$ for robustness.
 
 \vspace{1mm}
-% Two-panel row: admissibility landscape (left, 2.21:1) + RBYGYB orbit
-% (right, 1:1). Widths chosen so aspect ratios yield MATCHED heights
-% (0.66*w = 2.21*H, 0.30*w = 1.0*H → both give H ≈ 0.30 linewidth),
-% and the sum stays inside the 0.45-column Box 6.
+% Two-panel row: admissibility landscape (aspect 2.170) + RBYGYB orbit
+% (aspect 0.914 after fontsize=38 subtitle push made simon taller).
+% Widths solve w_L / 2.170 = w_R / 0.914 with w_L + w_R = 0.96 →
+% w_L = 0.676, w_R = 0.284, so BOTH panels render at the same on-poster
+% height. minipage[t] anchors their tops together so the subtitle text
+% (which sits at the top of each PDF after bbox_inches='tight') aligns.
 \centering
-\includegraphics[width=0.66\linewidth]{margin_landscape.pdf}\hfill
-\includegraphics[width=0.30\linewidth]{simon_rbygyb.pdf}
+\begin{minipage}[t]{0.676\linewidth}\raggedright
+\includegraphics[width=\linewidth]{margin_landscape.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.284\linewidth}\raggedright
+\includegraphics[width=\linewidth]{simon_rbygyb.pdf}
+\end{minipage}
 
 \vspace{2mm}
 {\centering
