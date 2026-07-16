@@ -1,3 +1,4 @@
+import os
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -104,8 +105,10 @@ axD.set_ylabel('IC count (basin-weighted)', fontsize=11)
 axD.set_title('Attractor period distribution', fontsize=12)
 
 plt.tight_layout()
-plt.savefig(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures', 'multistability_highD.png'),
-            dpi=150, bbox_inches='tight')
+_here = os.path.dirname(os.path.abspath(__file__))
+for ext in ('png', 'pdf'):
+    plt.savefig(os.path.join(_here, '..', 'figures', f'multistability_highD.{ext}'),
+                dpi=150, bbox_inches='tight')
 print('saved')
 
 # Distinctness of readouts
