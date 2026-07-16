@@ -286,13 +286,13 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 $m{>}0$ realizes the word; maximize $m$ for robustness.
 
 \vspace{1mm}
-% Two-panel row: admissibility landscape (left) + realized RBYGYB orbit (right)
-\begin{minipage}[b]{0.55\linewidth}\centering
-\includegraphics[width=\linewidth]{margin_landscape.pdf}
-\end{minipage}\hfill
-\begin{minipage}[b]{0.42\linewidth}\centering
-\includegraphics[width=\linewidth]{simon_rbygyb.pdf}
-\end{minipage}
+% Two-panel row: admissibility landscape (left, 2.21:1) + RBYGYB orbit
+% (right, 1:1). Widths chosen so aspect ratios yield MATCHED heights
+% (0.66*w = 2.21*H, 0.30*w = 1.0*H → both give H ≈ 0.30 linewidth),
+% and the sum stays inside the 0.45-column Box 6.
+\centering
+\includegraphics[width=0.66\linewidth]{margin_landscape.pdf}\hfill
+\includegraphics[width=0.30\linewidth]{simon_rbygyb.pdf}
 
 \vspace{2mm}
 {\centering
@@ -305,6 +305,7 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
   \emph{Storage is closed-form}: the drives $\bm{\alpha}$ are read off the linear program.
   \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map, so the orbit unfolds from any initial state in the basin.%
 }}\par}
+% (Removed 50mm pad; use a proper alignment mechanism instead if needed.)
 \end{minipage}
 }
 \end{columns}
