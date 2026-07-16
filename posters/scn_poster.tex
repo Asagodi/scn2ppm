@@ -60,7 +60,7 @@
 
 \settitle{%
   \noindent
-  \begin{minipage}[t]{0.415\textwidth}\vspace{0pt}
+  \begin{minipage}[t]{0.55\textwidth}\vspace{0pt}
     \raggedright
     {\color{navy}\bfseries\fontsize{52}{58}\selectfont
        Spike Coding Networks as Piecewise Projective Maps:\\
@@ -68,7 +68,7 @@
     \vspace*{5mm}
     {\color{ink}\large \'Abel S\'agodi \;\textbullet\; William Podlaski \;\textbullet\; Ildefonso Ferreira Pica\par}
   \end{minipage}\hfill
-  \begin{minipage}[t]{0.56\textwidth}\vspace{2mm}
+  \begin{minipage}[t]{0.45\textwidth}\vspace{2mm}
     % --- Calaim-style SCN schematic (replaces former equation box) ---
     \noindent\makebox[\linewidth][c]{%
       \begin{tikzpicture}[font=\large, >=Stealth, x=3.0cm, y=1.6cm]
@@ -184,7 +184,7 @@ Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\
 
 \vspace{4mm}
 \centering
-\includegraphics[width=0.98\linewidth]{derivation_tikz.pdf}
+\includegraphics[width=0.98\linewidth]{derivation_tikz_flat.pdf}
 }
 \end{columns}
 
@@ -219,32 +219,36 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \block{\bt{3}{Two-Neuron Overview}}{
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=0.98\linewidth]{scn_word_example.pdf}
+\includegraphics[width=0.98\linewidth]{scn_word_example_flat.pdf}
 \end{minipage}
 }
 \end{columns}
 
 % ============================================================
-% ROW 3b: Three-Neuron / Higher-D Example (FULL WIDTH)
+% ROW 3b: Three-Neuron / Higher-D Example (main) + Inverse-scaling margin panel
 % ============================================================
 \begin{columns}
 \column{1.0}
 \block{\bt{4}{Three Neurons and Higher $N$}}{
 \begin{minipage}[t]{\linewidth}
-\centering
-\includegraphics[width=0.98\linewidth]{fig_3d_example.pdf}
-
-\vspace{2mm}
-\colorbox{navy!7}{\parbox{0.96\linewidth}{%
+\vspace{0pt}
+% figure and callout side-by-side
+\begin{minipage}[t]{0.70\linewidth}\vspace{0pt}\centering
+\includegraphics[width=\linewidth]{fig_3d_example_flat.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\linewidth}\vspace{0pt}\raggedright
+\colorbox{navy!7}{\parbox{\linewidth}{%
   \vspace{1mm}\normalsize
   \textbf{\color{navy}Beyond $K{=}N{=}2$.}\;
-  The eigenvector prediction is exact at any $(K,N)$. The $K{=}N{=}3$ example above verifies all $11$ orbit points to machine precision, with both stability ratios ($|\mu_2/\mu_1|=0.015$, $|\mu_3/\mu_1|=0.008$) deep inside the unit circle.
-  \emph{Multistability.}\; The mixed cyclic orbit coexists with three single-bound self-trapping orbits; a scan over drives $\alpha_3$ shows all firing ratios $\rho_j$ redistributing through mode-locked plateaus.
+  The eigenvector prediction is exact at any $(K,N)$. The $K{=}N{=}3$ example verifies all $11$ orbit points to machine precision, with both stability ratios ($|\mu_2/\mu_1|=0.015$, $|\mu_3/\mu_1|=0.008$) deep inside the unit circle.
+  \emph{Multistability.}\; The mixed cyclic orbit coexists with three single-bound self-trapping orbits; a scan over $\alpha_3$ shows all firing ratios $\rho_j$ redistributing through mode-locked plateaus.
   \vspace{1mm}
 }}
 \end{minipage}
+\end{minipage}
 }
 \end{columns}
+
 
 % ============================================================
 % ROW 4: Chaos beyond the cone | Inverse Problem
@@ -282,7 +286,13 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 $m{>}0$ realizes the word; maximize $m$ for robustness.
 
 \vspace{1mm}
-{\centering\includegraphics[width=0.98\linewidth]{inverse_scaling.pdf}\par}
+% Two-panel row: admissibility landscape (left) + realized RBYGYB orbit (right)
+\begin{minipage}[b]{0.55\linewidth}\centering
+\includegraphics[width=\linewidth]{margin_landscape.pdf}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.42\linewidth}\centering
+\includegraphics[width=\linewidth]{simon_rbygyb.pdf}
+\end{minipage}
 
 \vspace{2mm}
 {\centering
