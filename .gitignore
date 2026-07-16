@@ -58,8 +58,7 @@ Thumbs.db
 paper/*.pdf
 posters/*.pdf
 
-# ---- Generated figure outputs (regenerate via the scripts) ----
-figures/*.pdf
-figures/*.png
-figures/*.svg
+# Figure PDFs and PNGs ARE tracked (shipping artifacts of the paper).
+# HTML interactive figures + intermediate SVGs are still generated on demand:
 figures/*.html
+figures/*.svg
