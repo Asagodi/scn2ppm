@@ -24,7 +24,7 @@ WORDS = [
     ([0, 0, 1],                   r'$\sigma = (1,1,2)$'),
     ([0, 0, 1, 0, 0, 0, 1],       r'$\sigma = (1,1,2,1,1,1,2)$'),
 ]
-PANEL_SUBTITLES = ['Short word (L=3)', 'Long word (L=7)']
+PANEL_SUBTITLES = [r'Short ($L=3$)', r'Long ($L=7$)']
 
 # Compute both margin grids first so we can share vmin/vmax on the colorbar.
 n_grid = 150
