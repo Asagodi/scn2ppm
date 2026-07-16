@@ -7,7 +7,7 @@
 \usepackage{amssymb, amsmath, amsfonts, mathtools}
 \usepackage{bm}
 \usepackage{graphicx}
-\graphicspath{{figures/}{./}}
+\graphicspath{{../figures/}{./}}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning, calc, decorations.pathreplacing}
 \usepackage{enumitem}
@@ -63,7 +63,8 @@
   \begin{minipage}[t]{0.415\textwidth}\vspace{0pt}
     \raggedright
     {\color{navy}\bfseries\fontsize{52}{58}\selectfont
-       Spike Coding Networks \\ as Piecewise Projective Maps\par}
+       Spike Coding Networks as Piecewise Projective Maps:\\
+       Closed-Form Stable Periodic Firing Patterns\par}
     \vspace*{5mm}
     {\color{ink}\large \'Abel S\'agodi \;\textbullet\; William Podlaski \;\textbullet\; Ildefonso Ferreira Pica\par}
   \end{minipage}\hfill
@@ -218,35 +219,17 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \block{\bt{3}{Two-Neuron Overview}}{
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=0.98\linewidth]{fig1.pdf}
+\includegraphics[width=0.98\linewidth]{scn_word_example.pdf}
 \end{minipage}
 }
 \end{columns}
 
 % ============================================================
-% ROW 3: Scaling across (M, N)
+% ROW 3b: Three-Neuron / Higher-D Example (FULL WIDTH)
 % ============================================================
 \begin{columns}
 \column{1.0}
-\block{\bt{4}{Scaling: Exact Across $(M, N)$}}{
-\begin{minipage}[t]{\linewidth}\normalsize
-The eigenvector orbit and decay rate $|\mu_2/\mu_1|^{n/L}$ are \emph{exact} regardless
-of $M$ (neurons) or $N$ (input dim). Bands $=$ 5--95 \& 25--75 pctl.\ over 200 random
-initial conditions; dashed line $=$ analytical prediction.
-
-\vspace{1mm}
-\centering
-\includegraphics[width=0.86\linewidth]{scaling_convergence.pdf}
-\end{minipage}
-}
-\end{columns}
-
-% ============================================================
-% ROW 4: 3D Example | Inverse Problem
-% ============================================================
-\begin{columns}
-\column{0.5}
-\block{\bt{5}{Three-Neuron Example}}{
+\block{\bt{4}{Three Neurons and Higher $N$}}{
 \begin{minipage}[t]{\linewidth}
 \centering
 \includegraphics[width=0.98\linewidth]{fig_3d_example.pdf}
@@ -254,14 +237,37 @@ initial conditions; dashed line $=$ analytical prediction.
 \vspace{2mm}
 \colorbox{navy!7}{\parbox{0.96\linewidth}{%
   \vspace{1mm}\normalsize
-  \textbf{\color{navy}Multistability.}\;
-  Firing ratios $\rho_j$ vs.\ $\alpha_3$, colors $=$ R/B/G for $\rho_1/\rho_2/\rho_3$; points at $\rho{=}1$ mark $\alpha_3$ ranges where self-trapping coexists with the predicted orbit.
+  \textbf{\color{navy}Beyond $K{=}N{=}2$.}\;
+  The eigenvector prediction is exact at any $(K,N)$. The $K{=}N{=}3$ example above verifies all $11$ orbit points to machine precision, with both stability ratios ($|\mu_2/\mu_1|=0.015$, $|\mu_3/\mu_1|=0.008$) deep inside the unit circle.
+  \emph{Multistability.}\; The mixed cyclic orbit coexists with three single-bound self-trapping orbits; a scan over drives $\alpha_3$ shows all firing ratios $\rho_j$ redistributing through mode-locked plateaus.
+  \vspace{1mm}
+}}
+\end{minipage}
+}
+\end{columns}
+
+% ============================================================
+% ROW 4: Chaos beyond the cone | Inverse Problem
+% ============================================================
+\begin{columns}
+\column{0.55}
+\block{\bt{5}{Order vs.\ Chaos}}{
+\begin{minipage}[t]{\linewidth}
+\centering
+\includegraphics[width=0.98\linewidth]{chaos_figure.pdf}
+
+\vspace{2mm}
+\colorbox{navy!7}{\parbox{0.96\linewidth}{%
+  \vspace{1mm}\normalsize
+  \textbf{\color{navy}A single sign controls the whole dynamics.}\;
+  When all pairwise decoder cosines $\cos\psi_{ij}>0$ (uniformly inhibitory connectivity), the projective return map contracts the Hilbert metric on the positive cone: every admissible periodic orbit is stable, no chaos.
+  A single negative cosine breaks the cone: an explicit $K{=}4$, $N{=}3$ SCN exhibits $\lambda_{\max}\approx 0.29$~nats/step with a strange attractor (panel~c).
   \vspace{1mm}
 }}
 \end{minipage}
 }
 
-\column{0.5}
+\column{0.45}
 \block{\bt{6}{Inverse Problem}}{
 \begin{minipage}[t]{\linewidth}\normalsize
 \textbf{Given} a firing word $\sigma$, \textbf{find} drives $\bm{\alpha}$ that realize it.
@@ -276,7 +282,7 @@ initial conditions; dashed line $=$ analytical prediction.
 $m{>}0$ realizes the word; maximize $m$ for robustness.
 
 \vspace{1mm}
-{\centering\includegraphics[width=0.98\linewidth]{wm_figure.pdf}\par}
+{\centering\includegraphics[width=0.98\linewidth]{inverse_scaling.pdf}\par}
 
 \vspace{2mm}
 {\centering
