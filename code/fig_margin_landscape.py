@@ -84,8 +84,11 @@ for panel, (word, title) in enumerate(WORDS):
     ax.set_xticks([0, 1, 2])
     ax.set_yticks([0, 1, 2])
     ax.tick_params(labelsize=15)
+    # fontsize=38: figure is 783pt wide, rendered at ~0.30*L_col on the
+    # poster (nested in Box 6's 0.45 column at 0.66 minipage). 38/783 * 0.30
+    # ≈ 1.4% of poster width, matching Box 1's \Large\bfseries subtitle.
     style.panel_label(ax, chr(ord('a') + panel),
-                       subtitle=PANEL_SUBTITLES[panel], fontsize=16, y=1.02)
+                       subtitle=PANEL_SUBTITLES[panel], fontsize=38, y=1.02)
 
 # ── Shared colorbar with 3 hand-labelled ticks and a separate scientific
 # multiplier drawn above the "m" label so it never touches the ticks. ──
