@@ -1,10 +1,10 @@
+\RequirePackage{mathtools, amssymb, amsmath, amsfonts}
 % A0 portrait poster.
 \documentclass[25pt, a0paper, portrait, margin=15mm, innermargin=15mm,
                blockverticalspace=12mm, colspace=12mm, subcolspace=8mm]{tikzposter}
 
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
-\usepackage{amssymb, amsmath, amsfonts, mathtools}
 \usepackage{bm}
 \usepackage{graphicx}
 \graphicspath{{../figures/}{./}}
@@ -363,3 +363,21 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 
 
 \end{document}
+
+% ==============================================================================
+% COMPATIBILITY FIX (LaTeX 2024+ / TeX Live 2024–2026):
+%
+% ISSUE:
+% Modern LaTeX kernels (since June 2024 / ltnews39) strictly forbid loading 
+% packages or engine drivers inside a TeX group (\currentgrouplevel > 0). 
+% Legacy `tikzposter` opens a group at \begin{document} via `\AtBeginDocument{\bgroup}`.
+% Packages loaded in the preamble (like `mathtools` or `geometry`) defer setup code 
+% or driver loading to \AtBeginDocument, which gets queued AFTER tikzposter's 
+% \bgroup, causing them to load inside a group and trigger:
+% "LaTeX Error: Loading a class or package in a group."
+%
+% SOLUTION:
+% Pre-load affected packages BEFORE \documentclass using \RequirePackage{...}.
+% This forces their \AtBeginDocument hooks to register BEFORE tikzposter 
+% opens its group scope.
+% ==============================================================================
