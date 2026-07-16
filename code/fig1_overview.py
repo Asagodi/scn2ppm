@@ -226,19 +226,44 @@ ax.legend(fontsize=13, loc='lower left', framealpha=0.85)
 
 
 # ═══ (e) Devil's staircase ═══ (needs a2_range + rho_vals for panel f too)
+# Staircase computation is the expensive step (~5 min at 750 alpha_2 samples).
+# Cache to code/.cache_staircase.npz and reload if params match.
+# Force recompute with `python fig1_overview.py --recompute` or env SCN_RECOMPUTE=1.
 ax = axes[4]
-print("Computing staircase...")
-a2_range = np.linspace(0.25, 1.0, 750)   # matches devil_slider.html grid
-rho_vals = []
-period_vals = []
-for a2_ in a2_range:
-    sys_tmp = make_2d_system(THETA1, PSI, A1, a2_)
-    ratios, word = get_firing_ratios(sys_tmp)
-    rho_vals.append(ratios[1])
-    period_vals.append(len(word))
+_code_dir = os.path.dirname(os.path.abspath(__file__))
+_cache_path = os.path.join(_code_dir, '.cache_staircase.npz')
+_force_recompute = ('--recompute' in _sys.argv) or (os.environ.get('SCN_RECOMPUTE') == '1')
 
-rho_vals = np.array(rho_vals)
-period_vals = np.array(period_vals)
+_a2_range_target = np.linspace(0.25, 1.0, 750)   # matches devil_slider.html grid
+_cache_hit = False
+if not _force_recompute and os.path.exists(_cache_path):
+    _d = np.load(_cache_path)
+    if (float(_d['THETA1']) == THETA1 and float(_d['PSI']) == PSI
+            and float(_d['A1']) == A1 and _d['a2_range'].shape == _a2_range_target.shape
+            and np.allclose(_d['a2_range'], _a2_range_target)):
+        a2_range = _d['a2_range']
+        rho_vals = _d['rho_vals']
+        period_vals = _d['period_vals']
+        _cache_hit = True
+        print(f"Loaded staircase cache: {_cache_path}")
+    else:
+        print("Cache present but params differ; recomputing.")
+
+if not _cache_hit:
+    print("Computing staircase (~5 min at 750 samples; cache -> .cache_staircase.npz)...")
+    a2_range = _a2_range_target
+    rho_vals = []
+    period_vals = []
+    for a2_ in a2_range:
+        sys_tmp = make_2d_system(THETA1, PSI, A1, a2_)
+        ratios, word = get_firing_ratios(sys_tmp)
+        rho_vals.append(ratios[1])
+        period_vals.append(len(word))
+    rho_vals = np.array(rho_vals)
+    period_vals = np.array(period_vals)
+    np.savez(_cache_path, THETA1=THETA1, PSI=PSI, A1=A1,
+             a2_range=a2_range, rho_vals=rho_vals, period_vals=period_vals)
+    print(f"Saved staircase cache: {_cache_path}")
 
 # Interpolate spurious transient-detection failures (short zero runs surrounded by non-zero)
 i = 0
