@@ -38,7 +38,7 @@ orbit, ev, xi_star = eigenvector_orbit(word, sys)
 ratio = abs(ev[1]/ev[0])
 
 
-fig = plt.figure(figsize=(20, 5.0))
+fig = plt.figure(figsize=(20, 4.0))
 
 # ─── (a) 3D geometry: theory orbit + simulation overlay ───
 ax1 = fig.add_subplot(141, projection='3d')

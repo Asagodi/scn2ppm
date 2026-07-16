@@ -113,5 +113,5 @@ fig.subplots_adjust(left=0.07, right=0.90, top=0.86, bottom=0.16)
 
 _here = os.path.dirname(os.path.abspath(__file__))
 _out = os.path.normpath(os.path.join(_here, '..', 'figures', 'margin_landscape.pdf'))
-fig.savefig(_out, dpi=300, bbox_inches='tight', pad_inches=0.05)
+fig.savefig(_out, dpi=300, bbox_inches='tight', pad_inches=0.02)
 print(f'Saved {_out}')

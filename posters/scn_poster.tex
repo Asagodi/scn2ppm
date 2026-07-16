@@ -233,10 +233,10 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \begin{minipage}[t]{\linewidth}
 \vspace{0pt}
 % figure and callout side-by-side
-\begin{minipage}[t]{0.70\linewidth}\vspace{0pt}\centering
+\begin{minipage}[t]{0.65\linewidth}\vspace{0pt}\centering
 \includegraphics[width=\linewidth]{fig_3d_example_flat.pdf}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.27\linewidth}\vspace{0pt}\raggedright
+\begin{minipage}[t]{0.25\linewidth}\vspace{0pt}\raggedright
 \colorbox{navy!7}{\parbox{\linewidth}{%
   \vspace{1mm}\normalsize
   \textbf{\color{navy}Beyond $K{=}N{=}2$.}\;
@@ -258,14 +258,15 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \block{\bt{5}{Order vs.\ Chaos}}{
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=0.98\linewidth]{chaos_figure.pdf}
+\includegraphics[width=0.97\linewidth]{chaos_figure.pdf}
 
 \vspace{2mm}
-\colorbox{navy!7}{\parbox{0.96\linewidth}{%
+\colorbox{navy!7}{\parbox{0.97\linewidth}{%
   \vspace{1mm}\normalsize
   \textbf{\color{navy}A single sign controls the whole dynamics.}\;
   When all pairwise decoder cosines $\cos\psi_{ij}>0$ (uniformly inhibitory connectivity), the projective return map contracts the Hilbert metric on the positive cone: every admissible periodic orbit is stable, no chaos.
   A single negative cosine breaks the cone: an explicit $K{=}4$, $N{=}3$ SCN exhibits $\lambda_{\max}\approx 0.29$~nats/step with a strange attractor (panel~c).
+  \emph{Biological analogue}: balanced inhibition-dominated cortex sits inside the stable cone; disinhibition pushes cosines negative, predicting the transition to irregular firing.
   \vspace{1mm}
 }}
 \end{minipage}
@@ -311,7 +312,19 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
   \emph{Storage is closed-form}: the drives $\bm{\alpha}$ are read off the linear program.
   \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map, so the orbit unfolds from any initial state in the basin.%
 }}\par}
-% (Removed 50mm pad; use a proper alignment mechanism instead if needed.)
+
+\vspace{2mm}
+{\centering
+\setlength{\fboxsep}{2pt}%
+\colorbox{navy!7}{\parbox{0.96\linewidth}{%
+  \vspace{1mm}\normalsize
+  \textbf{\color{navy}Sequence memory (motor codes).}\;
+  Precise motor sequences (e.g.\ songbird HVC syllable rasters~\ref{ref:hvc}) are naturally encoded as symbolic firing words $\sigma$: each syllable is one periodic word with its own return-map eigenvector; syllable switches are drive-triggered basin transitions on a shared decoder $\vv{D}$. Storage cost scales with $KN$, not with sequence length.%
+  \vspace{1mm}
+}}\par}
+% No vspace: Box 6 with HVC callout is actually taller than Box 5 by
+% ~1cm naturally; earlier "gap" measurements were confounded by Row 5's
+% overlapping x-range. Leaving unpadded gives closest natural alignment.
 \end{minipage}
 }
 \end{columns}
@@ -320,21 +333,20 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 % (Old Row 4: Sequence Memory) — merged into Box 6 above
 % ROW 5: Bottom three blocks (pulled up slightly)
 % ============================================================
-% Pull the last row up. tikzposter sets \TP@blocktop from the previous
-% \TP@colbottom at \begin{columns}; bumping it (positive y = up) shifts
-% the next row's blocks higher.
-\makeatletter
-\global\advance\TP@blocktop by 20mm
-\global\TP@colbottom=\TP@blocktop
-\makeatother
+% Pull the last row up (positive y = up). With Box 5/6 wrapped in 18cm
+% fixed minipages there's now natural room; the previous 20mm pull-up
+% cramped the last-row titles right against Row 4. Removing it lets
+% tikzposter's default blockverticalspace (12mm) breathe.
+% \makeatletter
+% \global\advance\TP@blocktop by 20mm
+% \global\TP@colbottom=\TP@blocktop
+% \makeatother
 \begin{columns}
 \column{0.25}
 \block{\btnonum{Takeaways}}{
-\begin{minipage}[t][5.2cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][5.8cm][t]{\linewidth}\normalsize
 \begin{itemize}[label={\color{accent}\textbullet}]
-  \item Precompile $K^2$ matrices: $O(K^2N^2)$
-    \item Compile-then-query
-%  \item Orbit: $O(N^3)$ eigendecomp.
+  \item Compile once ($O(K^2N^2)$), then query fast
   \item No simulation, no ODE solver
   \item Closed-form stability $|\mu_2/\mu_1|$
   \item Margin $m$ = closed-form robustness
@@ -344,7 +356,7 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 }
 \column{0.25}
 \block{\btnonum{Discussion}}{
-\begin{minipage}[t][5.2cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][5.8cm][t]{\linewidth}\normalsize
 \begin{itemize}[label={\color{accent}\textbullet}]
   \item Full-dim spike maps~\ref{ref:monteforte}; we add projective reduction
   \item Forced mode-locking~\ref{ref:coombes}; ours intrinsic
@@ -356,7 +368,7 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 }
 \column{0.5}
 \block{\btnonum{References}}{
-\begin{minipage}[t][5.2cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][5.8cm][t]{\linewidth}\normalsize
 \begin{multicols}{2}
 \begin{enumerate}[label=\textbf{\color{accent}[\arabic*]}, leftmargin=*, itemsep=0pt, ref={[\arabic*]}]
   \item\label{ref:boerlin} Boerlin \emph{et al.}, \emph{PLoS CB} '13
@@ -371,6 +383,7 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
   \item \label{ref:sagodi24} S\'agodi \emph{et al.}, \emph{NeurIPS} '24
     \item\label{ref:vreeswijk} van Vreeswijk \& Sompolinsky, \emph{Sci.} '96
   \item\label{ref:jahnke} Jahnke \emph{et al.}, \emph{PRL} '08
+  \item\label{ref:hvc} Pascual \emph{et al.}, \emph{bioRxiv} '24
 \end{enumerate}
 \end{multicols}
 \end{minipage}
