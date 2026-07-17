@@ -280,7 +280,7 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \textbf{Given} a firing word $\sigma$, \textbf{find} drives $\bm{\alpha}$ that realize it.
 
 \vspace{1mm}
-\textbf{Admissibility margin} (worst-case target $-$ competitor gap):
+\textbf{Admissibility margin} (worst-case target; competitor gap):
 \[
   m(\bm{\alpha}) = \min_{k}\;\bigl(
     c_{b_{k+1},k} - \max_{j\neq b_{k+1}} c_{j,k}
@@ -312,7 +312,7 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
   Margin shrinks with word length $\Rightarrow$ matches the behavioral $4{\pm}1$ limit~\ref{ref:cowan}.
   Same $(\vv{D},\bm{\alpha})$ stores multiple words (\emph{multistability}); varying $\xx$ navigates the staircase to switch between stored items.
   \emph{Storage is closed-form}: the drives $\bm{\alpha}$ are read off the linear program.
-  \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map, so the orbit unfolds from any initial state in the basin.%
+  \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map. %, so the orbit unfolds from any initial state in the basin.%
 }}\par}
 
 \vspace{2mm}
@@ -321,7 +321,7 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 \colorbox{navy!7}{\parbox{0.96\linewidth}{%
   \vspace{1mm}\normalsize
   \textbf{\color{navy}Sequence memory (motor codes).}\;
-  Precise motor sequences (e.g.\ songbird HVC syllable rasters~\ref{ref:hvc}) are naturally encoded as symbolic firing words $\sigma$: each syllable is one periodic word with its own return-map eigenvector; syllable switches are drive-triggered basin transitions on a shared decoder $\vv{D}$. Storage cost scales with $KN$, not with sequence length.%
+  Precise motor sequences (e.g.\ songbird HVC syllable rasters~\ref{ref:hvc}) are naturally encoded as symbolic firing words $\sigma$: each syllable is one periodic word with its own return-map eigenvector; syllable switches are drive-triggered basin transitions on a shared decoder $\vv{D}$. Storage cost scales with $KN$, not with sequence length: \textbf{one $K{=}10$, $N{=}50$ SCN carries $23$ coexisting stable words (periods $1$--$33$)}.%
   \vspace{1mm}
 }}\par}
 % No vspace: Box 6 with HVC callout is actually taller than Box 5 by
