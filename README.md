@@ -2,11 +2,6 @@
 
 **Closed-form stable periodic firing patterns and connectivity for working memory**
 
-*Author names and affiliation withheld for double-blind review.*
-
-- arXiv preprint: to be posted at acceptance
-- Neural Computation submission (2026)
-
 Reference implementation of the framework, the inverse-problem solver, one script per paper figure, and the full LaTeX source of the paper and supplement.
 
 ---
@@ -164,6 +159,4 @@ Runtimes on a single CPU are all under one minute except:
 
 *A citation entry will be added at de-anonymisation.*
 
-## License
 
-MIT. See [`LICENSE`](LICENSE).

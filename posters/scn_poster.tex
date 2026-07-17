@@ -67,6 +67,8 @@
        Closed-Form Stable Periodic Firing Patterns\par}
     \vspace*{5mm}
     {\color{ink}\large \'Abel S\'agodi \;\textbullet\; William Podlaski \;\textbullet\; Ildefonso Ferreira Pica\par}
+    \vspace*{2mm}
+    {\color{muted}\large Champalimaud Foundation\par}
   \end{minipage}\hfill
   \begin{minipage}[t]{0.45\textwidth}\vspace{2mm}
     % --- Calaim-style SCN schematic (replaces former equation box) ---
@@ -166,7 +168,7 @@ decay $\dot\yy = -\lambda\yy$; spike $\yy \mapsto \yy + \DD_i$ at $\DD_i^\top\yy
 Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\Bsp_i$: $\yy = \alpha_i\DD_i + \vv{U}_i\xxi$, where $\xxi\in\reals^{N-1}$ is the tangent coordinate. The full dynamics is a \textbf{piecewise projective map} on the disjoint union $\bigsqcup_i \Bsp_i$. %: a point on $\Bsp_i$ is mapped to the next firing bound $\Bsp_j$ via the formula below.
 \end{minipage}\hfill
 \begin{minipage}[t]{0.38\linewidth}\vspace{0pt}\normalsize
-\colorbox{accentsoft}{\parbox{0.96\linewidth}{%
+\colorbox{navy!7}{\parbox{0.96\linewidth}{%
   \vspace{1.5mm}\centering\normalsize
   $\displaystyle\xxi_j = \alpha_j\,\frac{(\alpha_i{+}1)\vv{w}_{ji}+\vv{R}_{ji}\,\xxi_i}{(\alpha_i{+}1)\cos\psi_{ji}+\vv{v}_{ji}^\top\xxi_i}$
   \quad
@@ -233,10 +235,10 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \begin{minipage}[t]{\linewidth}
 \vspace{0pt}
 % figure and callout side-by-side
-\begin{minipage}[t]{0.70\linewidth}\vspace{0pt}\centering
+\begin{minipage}[t]{0.65\linewidth}\vspace{0pt}\centering
 \includegraphics[width=\linewidth]{fig_3d_example_flat.pdf}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.27\linewidth}\vspace{0pt}\raggedright
+\begin{minipage}[t]{0.25\linewidth}\vspace{0pt}\raggedright
 \colorbox{navy!7}{\parbox{\linewidth}{%
   \vspace{1mm}\normalsize
   \textbf{\color{navy}Beyond $K{=}N{=}2$.}\;
@@ -258,14 +260,15 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \block{\bt{5}{Order vs.\ Chaos}}{
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=0.98\linewidth]{chaos_figure.pdf}
+\includegraphics[width=0.97\linewidth]{chaos_figure.pdf}
 
 \vspace{2mm}
-\colorbox{navy!7}{\parbox{0.96\linewidth}{%
+\colorbox{navy!7}{\parbox{0.97\linewidth}{%
   \vspace{1mm}\normalsize
   \textbf{\color{navy}A single sign controls the whole dynamics.}\;
   When all pairwise decoder cosines $\cos\psi_{ij}>0$ (uniformly inhibitory connectivity), the projective return map contracts the Hilbert metric on the positive cone: every admissible periodic orbit is stable, no chaos.
   A single negative cosine breaks the cone: an explicit $K{=}4$, $N{=}3$ SCN exhibits $\lambda_{\max}\approx 0.29$~nats/step with a strange attractor (panel~c).
+  \emph{Biological analogue}: balanced inhibition-dominated cortex sits inside the stable cone; disinhibition pushes cosines negative, predicting the transition to irregular firing.
   \vspace{1mm}
 }}
 \end{minipage}
@@ -277,7 +280,7 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \textbf{Given} a firing word $\sigma$, \textbf{find} drives $\bm{\alpha}$ that realize it.
 
 \vspace{1mm}
-\textbf{Admissibility margin} (worst-case target $-$ competitor gap):
+\textbf{Admissibility margin} (worst-case target; competitor gap):
 \[
   m(\bm{\alpha}) = \min_{k}\;\bigl(
     c_{b_{k+1},k} - \max_{j\neq b_{k+1}} c_{j,k}
@@ -286,26 +289,44 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 $m{>}0$ realizes the word; maximize $m$ for robustness.
 
 \vspace{1mm}
-% Two-panel row: admissibility landscape (left, 2.21:1) + RBYGYB orbit
-% (right, 1:1). Widths chosen so aspect ratios yield MATCHED heights
-% (0.66*w = 2.21*H, 0.30*w = 1.0*H → both give H ≈ 0.30 linewidth),
-% and the sum stays inside the 0.45-column Box 6.
+% Two-panel row: admissibility landscape (aspect 2.170) + RBYGYB orbit
+% (aspect 0.914 after fontsize=38 subtitle push made simon taller).
+% Widths solve w_L / 2.170 = w_R / 0.914 with w_L + w_R = 0.96 →
+% w_L = 0.676, w_R = 0.284, so BOTH panels render at the same on-poster
+% height. minipage[t] anchors their tops together so the subtitle text
+% (which sits at the top of each PDF after bbox_inches='tight') aligns.
 \centering
-\includegraphics[width=0.66\linewidth]{margin_landscape.pdf}\hfill
-\includegraphics[width=0.30\linewidth]{simon_rbygyb.pdf}
+\begin{minipage}[t]{0.676\linewidth}\raggedright
+\includegraphics[width=\linewidth]{margin_landscape.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.284\linewidth}\raggedright
+\includegraphics[width=\linewidth]{simon_rbygyb.pdf}
+\end{minipage}
 
 \vspace{2mm}
 {\centering
 \setlength{\fboxsep}{2pt}%
-\colorbox{accentsoft}{\parbox{0.96\linewidth}{%
+\colorbox{navy!7}{\parbox{0.96\linewidth}{%
   \normalsize
   \textbf{\color{accent}Working memory.}\;
   Margin shrinks with word length $\Rightarrow$ matches the behavioral $4{\pm}1$ limit~\ref{ref:cowan}.
   Same $(\vv{D},\bm{\alpha})$ stores multiple words (\emph{multistability}); varying $\xx$ navigates the staircase to switch between stored items.
   \emph{Storage is closed-form}: the drives $\bm{\alpha}$ are read off the linear program.
-  \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map, so the orbit unfolds from any initial state in the basin.%
+  \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map. %, so the orbit unfolds from any initial state in the basin.%
 }}\par}
-% (Removed 50mm pad; use a proper alignment mechanism instead if needed.)
+
+\vspace{2mm}
+{\centering
+\setlength{\fboxsep}{2pt}%
+\colorbox{navy!7}{\parbox{0.96\linewidth}{%
+  \vspace{1mm}\normalsize
+  \textbf{\color{navy}Sequence memory (motor codes).}\;
+  Precise motor sequences (e.g.\ songbird HVC syllable rasters~\ref{ref:hvc}) are naturally encoded as symbolic firing words $\sigma$: each syllable is one periodic word with its own return-map eigenvector; syllable switches are drive-triggered basin transitions on a shared decoder $\vv{D}$. Storage cost scales with $KN$, not with sequence length: \textbf{one $K{=}10$, $N{=}50$ SCN carries $23$ coexisting stable words (periods $1$--$33$)}.%
+  \vspace{1mm}
+}}\par}
+% No vspace: Box 6 with HVC callout is actually taller than Box 5 by
+% ~1cm naturally; earlier "gap" measurements were confounded by Row 5's
+% overlapping x-range. Leaving unpadded gives closest natural alignment.
 \end{minipage}
 }
 \end{columns}
@@ -314,21 +335,20 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 % (Old Row 4: Sequence Memory) — merged into Box 6 above
 % ROW 5: Bottom three blocks (pulled up slightly)
 % ============================================================
-% Pull the last row up. tikzposter sets \TP@blocktop from the previous
-% \TP@colbottom at \begin{columns}; bumping it (positive y = up) shifts
-% the next row's blocks higher.
-\makeatletter
-\global\advance\TP@blocktop by 20mm
-\global\TP@colbottom=\TP@blocktop
-\makeatother
+% Pull the last row up (positive y = up). With Box 5/6 wrapped in 18cm
+% fixed minipages there's now natural room; the previous 20mm pull-up
+% cramped the last-row titles right against Row 4. Removing it lets
+% tikzposter's default blockverticalspace (12mm) breathe.
+% \makeatletter
+% \global\advance\TP@blocktop by 20mm
+% \global\TP@colbottom=\TP@blocktop
+% \makeatother
 \begin{columns}
 \column{0.25}
 \block{\btnonum{Takeaways}}{
-\begin{minipage}[t][4.6cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][5.8cm][t]{\linewidth}\normalsize
 \begin{itemize}[label={\color{accent}\textbullet}]
-  \item Precompile $K^2$ matrices: $O(K^2N^2)$
-    \item Compile-then-query
-%  \item Orbit: $O(N^3)$ eigendecomp.
+  \item Compile once ($O(K^2N^2)$), then query fast
   \item No simulation, no ODE solver
   \item Closed-form stability $|\mu_2/\mu_1|$
   \item Margin $m$ = closed-form robustness
@@ -338,19 +358,19 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 }
 \column{0.25}
 \block{\btnonum{Discussion}}{
-\begin{minipage}[t][4.6cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][6cm][t]{\linewidth}\normalsize
 \begin{itemize}[label={\color{accent}\textbullet}]
   \item Full-dim spike maps~\ref{ref:monteforte}; we add projective reduction
   \item Forced mode-locking~\ref{ref:coombes}; ours intrinsic
   \item UAP construction~ \ref{ref:podlaski},\ref{ref:sagodi26}
    \item No continuous attractors~\ref{ref:sagodi24}
-  \item Chaos~\ref{ref:vreeswijk},\ref{ref:jahnke} if  $|\mu_2/\mu_1|\!>\!1$ % closed-form from the return-map spectrum
+  \item Chaos~\ref{ref:vreeswijk} if  $|\mu_2/\mu_1|\!>\!1$ % closed-form from the return-map spectrum
 \end{itemize}
 \end{minipage}
 }
 \column{0.5}
 \block{\btnonum{References}}{
-\begin{minipage}[t][4.6cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][6cm][t]{\linewidth}\normalsize
 \begin{multicols}{2}
 \begin{enumerate}[label=\textbf{\color{accent}[\arabic*]}, leftmargin=*, itemsep=0pt, ref={[\arabic*]}]
   \item\label{ref:boerlin} Boerlin \emph{et al.}, \emph{PLoS CB} '13
@@ -364,7 +384,7 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
   \item\label{ref:sagodi26} S\'agodi \& Park, \emph{arXiv} '26
   \item \label{ref:sagodi24} S\'agodi \emph{et al.}, \emph{NeurIPS} '24
     \item\label{ref:vreeswijk} van Vreeswijk \& Sompolinsky, \emph{Sci.} '96
-  \item\label{ref:jahnke} Jahnke \emph{et al.}, \emph{PRL} '08
+  \item\label{ref:hvc} Pascual \emph{et al.}, \emph{bioRxiv} '24
 \end{enumerate}
 \end{multicols}
 \end{minipage}

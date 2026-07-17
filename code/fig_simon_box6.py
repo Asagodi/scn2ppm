@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 import scn
+import style
 
 try:
     import style
@@ -177,6 +178,14 @@ try:
     ax.set_box_aspect([1, 1, 1])
 except Exception:
     pass
+
+# Panel label (c) so this figure reads as continuation of the (a)/(b)
+# margin_landscape panels shown to its left in Box 6.
+# fontsize=38: this figure is 363pt wide, rendered at ~0.135*L_col in Box 6
+# (nested in 0.45 column at 0.30 minipage). 38/363 * 0.135 ≈ 1.4% of poster
+# width, matching Box 1's \Large\bfseries subtitle so it visually aligns with
+# margin_landscape (a)/(b) which sit next to it.
+style.panel_label(ax, 'c', subtitle='RBYGYB orbit', fontsize=38, y=1.0)
 
 _here = os.path.dirname(os.path.abspath(__file__))
 _out = os.path.normpath(os.path.join(_here, '..', 'figures', 'simon_rbygyb.pdf'))

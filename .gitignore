@@ -62,3 +62,8 @@ posters/*.pdf
 # HTML interactive figures + intermediate SVGs are still generated on demand:
 figures/*.html
 figures/*.svg
+figures/*.png
+
+# cached data
+code/.cache*.npz
+

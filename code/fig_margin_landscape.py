@@ -24,6 +24,7 @@ WORDS = [
     ([0, 0, 1],                   r'$\sigma = (1,1,2)$'),
     ([0, 0, 1, 0, 0, 0, 1],       r'$\sigma = (1,1,2,1,1,1,2)$'),
 ]
+PANEL_SUBTITLES = [r'Short ($L=3$)', r'Long ($L=7$)']
 
 # Compute both margin grids first so we can share vmin/vmax on the colorbar.
 n_grid = 150
@@ -83,7 +84,11 @@ for panel, (word, title) in enumerate(WORDS):
     ax.set_xticks([0, 1, 2])
     ax.set_yticks([0, 1, 2])
     ax.tick_params(labelsize=15)
-    style.panel_label(ax, chr(ord('a') + panel))
+    # fontsize=38: figure is 783pt wide, rendered at ~0.30*L_col on the
+    # poster (nested in Box 6's 0.45 column at 0.66 minipage). 38/783 * 0.30
+    # ≈ 1.4% of poster width, matching Box 1's \Large\bfseries subtitle.
+    style.panel_label(ax, chr(ord('a') + panel),
+                       subtitle=PANEL_SUBTITLES[panel], fontsize=38, y=1.02)
 
 # ── Shared colorbar with 3 hand-labelled ticks and a separate scientific
 # multiplier drawn above the "m" label so it never touches the ticks. ──
@@ -108,5 +113,5 @@ fig.subplots_adjust(left=0.07, right=0.90, top=0.86, bottom=0.16)
 
 _here = os.path.dirname(os.path.abspath(__file__))
 _out = os.path.normpath(os.path.join(_here, '..', 'figures', 'margin_landscape.pdf'))
-fig.savefig(_out, dpi=300, bbox_inches='tight', pad_inches=0.05)
+fig.savefig(_out, dpi=300, bbox_inches='tight', pad_inches=0.02)
 print(f'Saved {_out}')

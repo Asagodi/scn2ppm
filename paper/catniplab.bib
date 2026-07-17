@@ -1,20 +1,38 @@
-% Anonymised self-citation stubs (double-blind review). At de-anonymisation
-% these keys will be replaced by the actual bib entries authored by the
-% submitting authors.
-@Unpublished{AnonSelfCite2024a,
-  author = {Anonymous},
-  title  = {Prior work by the authors of this submission, cited anonymously
-            for double-blind review},
-  year   = {2024},
-  note   = {Full reference withheld for double-blind review.},
+@InProceedings{Sagodi2026a,
+  author    = "S\'agodi, \'Abel and Park, Il Memming",
+  booktitle = {Computational and Systems Neuroscience ({COSYNE})},
+  title     = "Dynamical archetype analysis: Autonomous computation",
+  year      = {2026},
 }
 
-@Unpublished{AnonSelfCite2026b,
-  author = {Anonymous},
-  title  = {Universal-approximation theorems for dynamical systems with
-            infinite-time-horizon guarantees (author-anonymised)},
-  year   = {2026},
-  note   = {Full reference withheld for double-blind review.},
+@Unpublished{Sagodi2026b,
+  title         = "Universal Approximation Theorems for Dynamical Systems with Infinite-Time Horizon Guarantees",
+  author        = "S\'agodi, \'Abel and Park, Il Memming",
+  abstract      = "Universal approximation theorems establish the expressive
+                   capacity of neural network architectures. For dynamical
+                   systems, existing results are limited to finite time horizons
+                   or systems with a globally stable equilibrium, leaving
+                   multistability and limit cycles unaddressed. We prove that
+                   Neural ODEs achieve $\varepsilon$-$\delta$ closeness --
+                   trajectories within error $\varepsilon$ except for initial
+                   conditions of measure $< \delta$ -- over the infinite time
+                   horizon $[0,\infty)$ for three target classes: (1) Morse-Smale
+                   systems (a structurally stable class) with hyperbolic fixed
+                   points, (2) Morse-Smale systems with hyperbolic limit cycles
+                   via exact period matching, and (3) systems with normally
+                   hyperbolic continuous attractors via discretization. We
+                   further establish a temporal generalization bound:
+                   $\varepsilon$-$\delta$ closeness implies Lp error $\leq
+                   \varepsilon^p + \delta \cdot D^p$ for all $t \geq 0$,
+                   bridging topological guarantees to training metrics. These
+                   results provide the first universal approximation framework
+                   for multistable infinite-horizon dynamics.",
+  month         =  feb,
+  year          =  2026,
+  url           = "http://arxiv.org/abs/2602.08640",
+  archivePrefix = "arXiv",
+  primaryClass  = "math.DS",
+  eprint        = "2602.08640"
 }
 
 @InProceedings{Kautz2026a,
@@ -71,6 +89,60 @@
   archivePrefix = "arXiv",
   primaryClass  = "stat.ML",
   eprint        = "2410.05454",
+}
+
+@Unpublished{Sagodi2025b,
+  title         = "Dynamical archetype analysis: Autonomous computation",
+  author        = "S\'agodi, \'Abel and Park, Il Memming",
+  abstract      = "The study of neural computation aims to understand the
+                   function of a neural system as an information processing
+                   machine. Neural systems are undoubtedly complex,
+                   necessitating principled and automated tools to abstract away
+                   details to organize and incrementally build intuition. We
+                   argue that systems with the same effective behavior should be
+                   abstracted by their ideal representative, i.e., archetype,
+                   defined by its asymptotic dynamical structure. We propose a
+                   library of archetypical computations and a new measure of
+                   dissimilarity that allows us to group systems based on their
+                   effective behavior by explicitly considering both
+                   deformations that break topological conjugacy as well as
+                   diffeomorphisms that preserve it. The proposed dissimilarity
+                   can be estimated from observed trajectories. Numerical
+                   experiments demonstrate our method's ability to overcome
+                   previously reported fragility of existing (dis)similarity
+                   measures for approximate continuous attractors and
+                   high-dimensional recurrent neural networks. Although our
+                   experiments focus on working memory systems, our theoretical
+                   approach naturally extends to general mechanistic
+                   interpretation of recurrent dynamics in both biological and
+                   artificial neural systems. We argue that abstract dynamical
+                   archetypes, rather than detailed dynamical systems, offer a
+                   more useful vocabulary for describing neural computation.",
+  month         =  jul,
+  year          =  2025,
+  url           = "http://arxiv.org/abs/2507.05505",
+  archivePrefix = "arXiv",
+  primaryClass  = "math.DS",
+  eprint        = "2507.05505"
+}
+
+@InProceedings{Sagodi2025a,
+  author = "S\'agodi, \'Abel and Mart\'in-S\'anchez, Guillermo and Sok{\'o}{\l}, Piotr
+                   and Park, Il Memming",
+  booktitle = {Computational and Systems Neuroscience ({COSYNE})},
+  title     = {Approximate continuous attractor theory},
+  year      = {2025},
+}
+
+@INPROCEEDINGS{Sagodi2024b,
+  author = "S\'agodi, \'Abel and Mart\'in-S\'anchez, Guillermo and Sok{\'o}{\l}, Piotr
+                   and Park, Il Memming",
+  title = "Slow Manifold Dynamics for Working Memory are near Continuous Attractors",
+  booktitle = {Bernstein Conference},
+  doi = "10.12751/nncn.bc2024.076",
+  url = {https://abstracts.g-node.org/conference/BC24/abstracts#/uuid/5964bd61-91e8-4d1a-a9ca-e6d137f456b4},
+  year = 2024,
+  poster_no = "I 59",
 }
 
 @INPROCEEDINGS{Filipe2024a,
@@ -138,6 +210,43 @@
   month     = may,
   abstract  = {Large scale inference models are widely used in neuroscience to extract latent representations from high-dimensional neural recordings. Due to the statistical heterogeneities between sessions and animals, a new model is trained from scratch to infer the underlying dynamics for each new dataset. This is computationally expensive and does not fully leverage all the available data. Moreover, as these models get more complex, they can be challenging to train. In parallel, it is becoming common to use pre-trained models in the machine learning community for few shot and transfer learning. One major hurdle that prevents the re-use of generative models in neuroscience is the complex spatio-temporal structure of neural dynamics within and across animals. Interestingly, the underlying dynamics identified from different datasets on the same task are qualitatively similar. In this work, we exploit this observation and propose a source-free and unsupervised alignment approach that utilizes the learnt dynamics and enables the re-use of trained generative models. We validate our approach on simulations and show the efficacy of the alignment on neural recordings from the motor cortex obtained during a reaching task.},
   url       = {https://openreview.net/forum?id=9zhHVyLY4K},
+}
+
+@InProceedings{Sagodi2024a,
+  title         = "Back to the Continuous Attractor",
+  author        = "S\'agodi, \'Abel and Mart\'in-S\'anchez, Guillermo and Sok{\'o}{\l}, Piotr
+                   and Park, Il Memming",
+  booktitle     = {Advances in Neural Information Processing Systems (NeurIPS)},
+  abstract      = "Continuous attractors offer a unique class of solutions for
+                   storing continuous-valued variables in recurrent system
+                   states for indefinitely long time intervals. Unfortunately,
+                   continuous attractors suffer from severe structural
+                   instability in general--they are destroyed by most
+                   infinitesimal changes of the dynamical law that defines them.
+                   This fragility limits their utility especially in biological
+                   systems as their recurrent dynamics are subject to constant
+                   perturbations. We observe that the bifurcations from
+                   continuous attractors in theoretical neuroscience models
+                   display various structurally stable forms. Although their
+                   asymptotic behaviors to maintain memory are categorically
+                   distinct, their finite-time behaviors are similar. We build
+                   on the persistent manifold theory to explain the
+                   commonalities between bifurcations from and approximations of
+                   continuous attractors. Fast-slow decomposition analysis
+                   uncovers the persistent manifold that survives the seemingly
+                   destructive bifurcation. Moreover, recurrent neural networks
+                   trained on analog memory tasks display approximate continuous
+                   attractors with predicted slow manifold structures.
+                   Therefore, continuous attractors are functionally robust and
+                   remain useful as a universal analogy for understanding analog
+                   memory.",
+  month         =  dec,
+  year          =  2024,
+  archivePrefix = "arXiv",
+  primaryClass  = "q-bio.NC",
+  arxivid       = "2408.00109",
+  eprint        = "2408.00109",
+  url		= "https://openreview.net/forum?id=fvG6ZHrH0B",
 }
 
 @InProceedings{Park2024a,
@@ -2358,3 +2467,4 @@ INPROCEEDINGS{Paiva2008e,
 @Comment{jabref-meta: databaseType:bibtex;}
 
 @Comment{jabref-meta: saveOrderConfig:specified;year;true;citationkey;true;author;true;}
+

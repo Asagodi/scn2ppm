@@ -440,7 +440,7 @@ def main():
     ax_a.legend(loc='lower right', bbox_to_anchor=(0.99, 0.01),
                 fontsize=LEG_FS, framealpha=0.92,
                 borderaxespad=0.0)
-    style.panel_label(ax_a, 'a')
+    style.panel_label(ax_a, 'a', subtitle='Regime survey', fontsize=27, y=1.02)
 
     # ---- Panel (b): sensitivity to IC -------------------------------------
     t = np.arange(dists.shape[1])
@@ -465,7 +465,7 @@ def main():
     ax_b.set_ylabel(r'$\|y_t^{\mathrm{ref}} - y_t^{\mathrm{pert}}\|$', fontsize=LABEL_FS)
     ax_b.tick_params(labelsize=TICK_FS)
     ax_b.legend(loc='lower right', fontsize=LEG_FS)
-    style.panel_label(ax_b, 'b')
+    style.panel_label(ax_b, 'b', subtitle='IC sensitivity', fontsize=27, y=1.02)
 
     # ---- Panel (c): strange attractor cross-section -----------------------
     ax_c.scatter(attr_xi[:, 0], attr_xi[:, 1],
@@ -475,7 +475,7 @@ def main():
     ax_c.set_ylabel(r'$\xi_2$', fontsize=LABEL_FS)
     ax_c.tick_params(labelsize=TICK_FS)
     ax_c.set_aspect('equal', adjustable='datalim')
-    style.panel_label(ax_c, 'c')
+    style.panel_label(ax_c, 'c', subtitle='Strange attractor', fontsize=27, y=1.02)
 
     # ---- Panel (d): spike raster --------------------------------------------
     K = sys_paper['K']
@@ -493,7 +493,7 @@ def main():
     ax_d.set_xlim(0, len(raster_seq))
     ax_d.tick_params(labelsize=TICK_FS)
     ax_d.invert_yaxis()
-    style.panel_label(ax_d, 'd')
+    style.panel_label(ax_d, 'd', subtitle='Chaotic spike raster', fontsize=27, y=1.02)
 
     # Gridspec already sets hspace/wspace, so skip tight_layout.
     os.makedirs(OUT_DIR, exist_ok=True)
