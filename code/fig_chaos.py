@@ -88,9 +88,17 @@ LAMBDA_THEORY   = None  # filled in at runtime from paper_lam_max
 
 FD_EPS          = 1e-6   # finite-difference step for the per-step Jacobian
 
-CACHE_PATH = os.path.join(_HERE, '.cache_chaos.npz')
+# Sampler for the panel (a) phase diagram. 'iid' reproduces the paper
+# (iid-D-on-S^2 x Exp(0.8)-alpha, 3/800 chaotic). 'apex' uses the
+# apex-first sampler where all four bounds share a common apex on the
+# y-axis and the polyhedron opens toward +y. Override via env var:
+#   SCN_SAMPLER=apex python fig_chaos.py
+SAMPLER    = os.environ.get('SCN_SAMPLER', 'iid').lower()
+assert SAMPLER in ('iid', 'apex'), f'unknown SCN_SAMPLER={SAMPLER!r}'
+_SUFFIX    = '' if SAMPLER == 'iid' else f'_{SAMPLER}'
+CACHE_PATH = os.path.join(_HERE, f'.cache_chaos{_SUFFIX}.npz')
 OUT_DIR    = os.path.join(_HERE, '..', 'figures')
-OUT_PATH   = os.path.join(OUT_DIR, 'chaos_figure.pdf')
+OUT_PATH   = os.path.join(OUT_DIR, f'chaos_figure{_SUFFIX}.pdf')
 
 
 # ============================================================================
@@ -101,6 +109,86 @@ def build_sys(D_mat, alphas):
     DS = [D_mat[k].copy() for k in range(K)]
     ES = [scn.tangent_frame(d) for d in DS]
     return {'DS': DS, 'ES': ES, 'alphas': list(alphas), 'K': K, 'N': N}
+
+
+# ============================================================================
+# Principled apex-first sampler (Design A from chaos-sweep-audit workflow)
+# ============================================================================
+def sample_principled_KN(K=4, N=3, rng=None, y0=1.0,
+                         gauge_fix_azimuth=True):
+    """Apex-first sampler: all K bound hyperplanes share a common apex on
+    the y-axis at (0, -y0, 0), and the admissible polyhedron opens toward
+    +y by construction.
+
+    INVARIANCE FIXED. The ambient SO(3) x R^3 rigid-motion gauge acting
+    on (D_i, alpha_i) as (R D_i, alpha_i - D_i . t) is quotiented out by
+      * anchoring the common apex to p = (0, -y0, 0) (kills R^3 and 2 of
+        the 3 SO(3) dof by fixing which axis is the cone axis);
+      * optionally rotating about +y so that D_1's (x, z) projection lies
+        along +x (kills the residual SO(2)).
+    State scale (D, alpha) ~ (D, c*alpha) is fixed by y0 = 1.
+
+    Both sweep observables in `phase_diagram` -- min pairwise cosine and
+    lambda_max -- are invariant under this gauge (min cos is rotation-
+    invariant on unit rows; the SCN dynamics are equivariant under
+    y -> R y + t so their Jacobian spectrum is preserved).
+
+    CAVEAT (not a re-parameterization of the paper's iid prior). This
+    ensemble is a codim-(K-N+2) slice of the joint (D, alpha) space with
+    alpha_i = y0 * |D_i . e_y| deterministic in D_i. Chaos-fraction under
+    this sampler is NOT comparable to the paper's iid-D x Exp(0.8)
+    ensemble's 3/800 in Theorem cone(b); it is the correct sampler for
+    the geometric question "canonical cone with apex on the y-axis,
+    opening toward +y" only.
+
+    With `alpha ~ Uniform(0, y0)` each decoder row is iid uniform on the
+    OPEN LOWER hemisphere of S^2 (Archimedes' hat-box).
+
+    Parameters
+    ----------
+    K : int
+        Number of bound hyperplanes / decoders. Paper uses 4.
+    N : int
+        Ambient dimension. Specialized to N=3.
+    rng : numpy Generator or None
+        Randomness. If None, a fresh default_rng() is used.
+    y0 : float > 0
+        Apex distance below origin on the y-axis. Apex at (0, -y0, 0).
+    gauge_fix_azimuth : bool
+        If True, rotate about +y so D_1's (x, z) projection lies along +x.
+
+    Returns
+    -------
+    D_mat : (K, N) float ndarray
+        Unit-L2-row decoder matrix, D_{i,y} < 0 for every i.
+    alphas : (K,) float ndarray
+        Positive drives with alpha_i = y0 * |D_i . e_y|.
+    """
+    assert N == 3, ("Apex-first sampler is specialized to N=3 (the "
+                    "y-axis is a canonical direction only in 3D).")
+    if rng is None:
+        rng = np.random.default_rng()
+
+    alphas = rng.uniform(0.0, y0, size=K)
+    Dy    = -alphas / y0
+    r     = np.sqrt(np.clip(1.0 - Dy * Dy, 0.0, 1.0))
+    theta = rng.uniform(0.0, 2.0 * np.pi, size=K)
+    D_mat = np.stack([r * np.cos(theta), Dy, r * np.sin(theta)], axis=1)
+
+    if gauge_fix_azimuth and r[0] > 1e-12:
+        phi = np.arctan2(D_mat[0, 2], D_mat[0, 0])
+        c, s = np.cos(phi), np.sin(phi)
+        Ry = np.array([[ c, 0.0,  s],
+                       [0.0, 1.0, 0.0],
+                       [-s, 0.0,  c]])
+        D_mat = D_mat @ Ry.T
+
+    apex = np.array([0.0, -y0, 0.0])
+    assert np.allclose(np.linalg.norm(D_mat, axis=1), 1.0)
+    assert np.allclose(D_mat @ apex, alphas)
+    assert np.all(D_mat[:, 1] < 0.0)
+    assert np.all(alphas > 0.0)
+    return D_mat, alphas
 
 
 # ============================================================================
@@ -185,16 +273,29 @@ def lyapunov_qr(sys_dict, n_transient, n_record, n_segments=1,
 # Phase diagram: 800 random configs of (D, alpha) at K=4, N=3
 # ============================================================================
 def phase_diagram(n_samples=N_PHASE_SAMPLES, seed=42,
-                  n_transient=PHASE_TRANSIENT, n_record=PHASE_RECORD):
+                  n_transient=PHASE_TRANSIENT, n_record=PHASE_RECORD,
+                  sampler='iid'):
+    """
+    sampler : {'iid', 'apex'}
+        'iid'  : paper's iid-D-on-S^2 x Exp(0.8)-alpha ensemble (default,
+                 reproduces the numbers in Theorem cone(b)).
+        'apex' : apex-first ensemble (see sample_principled_KN) with all
+                 four bounds sharing a common apex on the y-axis and the
+                 admissible polyhedron opening toward +y. NOT comparable
+                 to the paper's 3/800 chaos count.
+    """
     rng = np.random.default_rng(seed)
     min_cos = np.full(n_samples, np.nan)
     lam_max = np.full(n_samples, np.nan)
     lam_2   = np.full(n_samples, np.nan)
     t0 = time.time()
     for s in range(n_samples):
-        D_mat = rng.standard_normal((4, 3))
-        D_mat = D_mat / np.linalg.norm(D_mat, axis=1, keepdims=True)
-        alphas = rng.exponential(0.8, size=4)
+        if sampler == 'apex':
+            D_mat, alphas = sample_principled_KN(K=4, N=3, rng=rng, y0=1.0)
+        else:
+            D_mat = rng.standard_normal((4, 3))
+            D_mat = D_mat / np.linalg.norm(D_mat, axis=1, keepdims=True)
+            alphas = rng.exponential(0.8, size=4)
         cos_mat = D_mat @ D_mat.T
         min_cos[s] = float(cos_mat[np.triu_indices(4, k=1)].min())
         sys_dict = build_sys(D_mat, alphas)
@@ -350,8 +451,8 @@ def main():
         print('No cache found. Computing heavy quantities...')
 
         print(f'Phase diagram over {N_PHASE_SAMPLES} random configs '
-              f'(paper spec: 800)...')
-        min_cos, lam_max, _ = phase_diagram()
+              f'(paper spec: 800), sampler={SAMPLER}...')
+        min_cos, lam_max, _ = phase_diagram(sampler=SAMPLER)
 
         print('Lyapunov spectrum for paper chaotic config '
               '(50 segments x 1000 steps QR)...')
@@ -420,7 +521,7 @@ def main():
                  alpha=0.5, linewidths=0, label='regular')
     ax_a.scatter(min_cos[chaotic], lam_max[chaotic],
                  marker='s', s=56, c=col_chaos,
-                 linewidths=0, label='chaotic')
+                 alpha=0.55, linewidths=0, label='chaotic')
     ax_a.axhline(0, color=style.COLORS['gray'], lw=0.7, ls='--', zorder=0)
 
     # The paper's constructed (D, alpha) case is NOT one of the 800 random
