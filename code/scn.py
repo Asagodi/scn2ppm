@@ -434,3 +434,89 @@ def dist_to_limit_cycle(xi_sim, bi_sim: int, orbit: list):
     if not pts:
         return np.nan
     return min(np.linalg.norm(xi_sim - pt) for pt in pts)
+
+# ═══════════════════════════════════════════════════════════════
+# Euler step (discrete time) simulation
+# ═══════════════════════════════════════════════════════════════
+
+def simulate_euler(input, D, E, F, T, dt=1e-4, leak=100., init=None):
+
+    K, N = D.shape
+    x = input['x']
+    time = input['time']
+    M, nT = x.shape
+
+    # --- set all thresholds to 1 and introduce bias input currents ---
+    T0 = np.ones((N,))
+    b = T0 - T
+
+    # --- set recurrent weights ---
+    W = E @ D
+
+    # initialize main vectors
+    s = np.zeros((N, nT))  # spikes
+    V = np.zeros((N, nT))  # voltages
+
+    if init is not None:
+        if 'y0' in init.keys():
+            V[:, 0] = F @ x[:, 0] + E @ init['y0'] + 1 - T
+        elif 'r0' in init.keys():
+            V[:, 0] = F @ x[:, 0] + W @ init['r0'] - (T - 1)
+        elif 'V0' in init.keys():
+            V[:, 0] = init['V0']
+
+    # run the Euler method to solve the differential equations
+    for t in range(1, nT):
+
+        # calculate feedforward inputs, bias currents and external inputs
+        c = (x[:, t] - x[:, t - 1]) / (dt * leak) + x[:, t - 1]
+        ff_inputs = F @ c + b
+
+        # calculate recurrent inputs
+        rec_inputs = (W @ s[:, t - 1]) / (dt * leak)
+
+        # update membrane potentials
+        V[:, t] = V[:, t - 1] + dt * leak * (-V[:, t - 1] + ff_inputs + rec_inputs)
+
+        # Check for spiking - ONLY ONE SPIKE ALLOWED PER TIME STEP
+        spiking_indices = np.arange(N)[V[:, t] >= T0]
+        if spiking_indices.size > 0:
+
+            spiking_index = np.argmax(V[:, t] - T0)
+            if V[spiking_index, t] >= T0[spiking_index]:
+                s[spiking_index, t] = 1
+            # V[spiking_index, t] = T0[spiking_index]
+
+    if init is not None and 'r0' in init.keys():
+        r = exp_filter(s, time, leak=leak, r0=init['r0'], dt=dt)
+    else:
+        r = exp_filter(s, time, leak=leak, dt=dt)
+    y = D @ r
+    if init is not None and 'y0' in init.keys():
+        y += init['y0'][:, None] * np.tile(np.exp(-leak * time), (K, 1))
+    spk_times = get_spike_times(s, dt=dt)
+
+    results = {'V': V,
+               's': s,
+               'r': r,
+               'y': y,
+    'spk_times': spk_times}
+
+    return results
+
+def exp_filter(s, times, leak=100., r0=None, dt=1e-4, incl_dt=False):
+    if incl_dt:
+        s *= dt
+    r = np.zeros_like(s)
+    if r0 is not None:
+        r = r0[:, None] * np.tile(np.exp(-leak*times), (s.shape[0], 1))
+    for n in range(s.shape[0]):
+        r[n, :] += np.convolve(s[n, :], np.exp(-leak*times), mode='full')[:s.shape[1]]
+    return r
+
+def get_spike_times(s, dt=1e-4):
+    spk_times = []
+    for n in range(s.shape[0]):
+        tmp = dt*np.where(s[n, :] == 1)[0]
+        spk_times.append(list(tmp))
+    return spk_times
