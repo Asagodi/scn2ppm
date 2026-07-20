@@ -125,63 +125,15 @@ $\cos\psi_{ji}=\DD_j^\top\DD_i$ (decoder cosine);\;
 $\vv{v}_{ji}=\vv{U}_i^\top\DD_j$, $\;\vv{w}_{ji}=\vv{U}_j^\top\DD_i$ (decoders projected into the tangent frames);\;
 $\vv{R}_{ji}=\vv{U}_j^\top\vv{U}_i$ (maps tangent frame $i\!\to\!j$).
 \begin{center}
-\includegraphics[width=0.84\linewidth]{derivation_tikz.pdf}
+\includegraphics[width=0.861\linewidth]{derivation_tikz.pdf}
 \end{center}
-
-\vspace{1mm}
-%: a point on $\Bsp_i$ is mapped to the next firing bound $\Bsp_j$ via the formula below.
-% \end{minipage}\hfill
-% \begin{minipage}[t]{0.36\linewidth}\vspace{0pt}\normalsize
-% \colorbox{navy!7}{\parbox{0.96\linewidth}{%
-%   \vspace{1.5mm}\centering\normalsize
-%   $\displaystyle\xxi_j = \alpha_j\,\frac{(\alpha_i{+}1)\vv{w}_{ji}+\vv{R}_{ji}\,\xxi_i}{(\alpha_i{+}1)\cos\psi_{ji}+\vv{v}_{ji}^\top\xxi_i}$
-%   \quad
-%   $\vv{M}_{j\leftarrow i} {=} \begin{pmatrix} \alpha_j\vv{R}_{ji} & \alpha_j(\alpha_i{+}1)\vv{w}_{ji} \\ \vv{v}_{ji}^\top & (\alpha_i{+}1)\cos\psi_{ji} \end{pmatrix}$
-%   \vspace{1.5mm}
-% }}
-% \end{minipage}\hfill\mbox{}
-
-\vspace{3mm}\normalsize
-
-% {\small\textbf{\color{navy}Inter-bound geometry.}\;
-%  With $\vv{U}_i$ the tangent frame of $\Bsp_i$ (its $N{-}1$ columns span the hyperplane):
-%  $\cos\psi_{ji}=\DD_j^\top\DD_i$ (decoder cosine);\;
-%  $\vv{v}_{ji}=\vv{U}_i^\top\DD_j$, $\;\vv{w}_{ji}=\vv{U}_j^\top\DD_i$ (decoders projected into the tangent frames);\;
-%  $\vv{R}_{ji}=\vv{U}_j^\top\vv{U}_i$ (maps tangent frame $i\!\to\!j$).\par}
-
-% \vspace{4mm}
-% \centering
-% \includegraphics[width=0.98\linewidth]{derivation_tikz_flat.pdf}
 }
 \end{columns}
 
-============================================================
-ROW 2: Orbits = Eigenvectors (FULL WIDTH)
-============================================================
+% ============================================================
+% ROW 2: Two-Neuron Overview & Maps + Orbits as eigenvectors
+% ============================================================
 \begin{columns}
-% \column{0.5}
-% \block{\bt{2}{Orbits = Eigenvectors of the Return Map}}{
-% \begin{minipage}[t]{\linewidth}\normalsize
-% For a firing word $\sigma=(b_0,\ldots,b_{L-1})$, composing the per-spike matrices $\vv{M}_{b_{k+1}\leftarrow b_k}$ gives the \textbf{symbolic return map}
-% $\vv{M}_\sigma = \prod_{k} \vv{M}_{b_{k+1}\leftarrow b_k} \in \reals^{N\times N}$, which propagates the tangent coordinate $\xxi\in\Bsp_{b_0}$ once around the cycle.\quad
-% \textbf{Periodic orbit $\leftrightarrow$ eigenvector.} Picture the homogeneous coordinate $\tilde\xxi=(\xxi^{*\top},1)^\top$ as a ray through the origin of $\reals^N$, and $\xxi^*$ as the unique point where this ray pierces the affine slice $\{x_N{=}1\}$. A period-$L$ cycle returns the ray to itself, $\vv{M}_\sigma\tilde\xxi^*=\mu_1\tilde\xxi^*$: $\xxi^*$ is the dehomogenization of the dominant eigenvector. The scale $\mu_1$ does not move the pierce point and cancels.\par
-% \textbf{Stability spectrum.} The return map $F=\mathrm{dh}\circ\vv{M}_\sigma$ on $\Bsp_{b_0}$ has, at its fixed point $\xxi^*$, a Jacobian with $N{-}1$ eigenvalues. Numerator $\mu_k$ along a transverse eigenvector $\vv{v}_k$, denominator $\mu_1$ along the fixed ray: the displacement on the slice is multiplied by the ratio $\mu_k/\mu_1$, one per independent perturbation direction. The orbit attracts iff every multiplier is inside the unit disk: $|\mu_k/\mu_1|<1$ for $k\ge 2$.
-
-% \vspace{1mm}
-% \btnonum{Cobweb.}\;
-% First-return map $F:\Bsp_1\to\Bsp_1$ has two M\"obius branches (self \& cross) joined at the partition point $\xi_{\mathrm{part}}$. Period-$L$ orbit visits $\Bsp_1$ a subset of times $\Rightarrow$ cobweb cycle.
-
-% \vspace{1mm}
-% \btnonum{Devil's staircase.}\;
-% Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\ref{ref:herman}. Period-$1\to 2$ boundary: $\alpha_j = \alpha_i\cos\psi_{ji}$.
-% \end{minipage}
-% }
-
-
-% ============================================================
-% ROW 3: Two-Neuron Overview (FULL WIDTH)
-% ============================================================
-
 \column{0.5}
 \block{\bt{3}{Analysis of a Two-Neuron system}}{
 \begin{minipage}[t]{\linewidth}
@@ -196,7 +148,8 @@ ROW 2: Orbits = Eigenvectors (FULL WIDTH)
 \textbf{Aim:} Derive discrete-time mapping of the continuous-time SCN and analyze SCN periodic behavior.
 
 \textbf{Derivation:} We rewrite the expression of the single-step evolution of the network state (in tangent coordinates) into matrix form using homogeneous coordinates, resulting in a projective map:
-\begin{center}
+
+\begin{center} %: a point on $\Bsp_i$ is mapped to the next firing bound $\Bsp_j$ via the formula below.
 $\displaystyle\xxi_j = \alpha_j\,\frac{(\alpha_i{+}1)\vv{w}_{ji}+\vv{R}_{ji}\,\xxi_i}{(\alpha_i{+}1)\cos\psi_{ji}+\vv{v}_{ji}^\top\xxi_i}$
 \quad$\longrightarrow$\quad
 $\vv{M}_{j\leftarrow i} = \begin{pmatrix} \alpha_j\vv{R}_{ji} & \alpha_j(\alpha_i{+}1)\vv{w}_{ji} \\ \vv{v}_{ji}^\top & (\alpha_i{+}1)\cos\psi_{ji} \end{pmatrix}$
@@ -213,11 +166,12 @@ Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\
 
 \textbf{Cobweb:} First-return map $F:\Bsp_1\to\Bsp_1$ has two M\"obius branches (self \& cross) joined at the partition point $\xi_{\mathrm{part}}$. Period-$L$ orbit visits $\Bsp_1$ a subset of times $\Rightarrow$ cobweb cycle. \textbf{Devil's staircase:} Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\ref{ref:herman}. Period-$1\to 2$ boundary: $\alpha_j = \alpha_i\cos\psi_{ji}$.
 \end{minipage}
+\vspace{1.2mm}
 }
 \end{columns}
 
 % ============================================================
-% ROW 3b: Three-Neuron / Higher-D Example (main) + Inverse-scaling margin panel
+% ROW 3: Three-Neuron / Higher-D Example (main) + Inverse-scaling margin panel
 % ============================================================
 \begin{columns}
 \column{1.0}
@@ -250,7 +204,7 @@ Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\
 
 
 % ============================================================
-% ROW 4: Chaos beyond the cone | Inverse Problem
+% ROW 4: Chaos beyond the cone & Inverse Problem
 % ============================================================
 \begin{columns}
 \column{0.55}
@@ -269,7 +223,7 @@ Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\
   When all pairwise decoder cosines $\cos\psi_{ij}>0$ (uniformly inhibitory connectivity), the projective return map contracts the Hilbert metric on the positive cone: every admissible periodic orbit is stable, no chaos.
   A single negative cosine breaks the cone: an explicit $K{=}4$, $N{=}3$ SCN exhibits $\lambda_{\max}\approx 0.29$~nats/step with a strange attractor (panel~c).
   \emph{Biological analogue}: balanced inhibition-dominated cortex sits inside the stable cone; disinhibition pushes cosines negative, predicting the transition to irregular firing.
-  \vspace{1mm}
+  \vspace{1.5mm}
 }}
 \end{minipage}
 }
@@ -344,7 +298,7 @@ m(\bm{\alpha}) = \min_{k}\;\bigl(
 \begin{columns}
 \column{0.25}
 \block{\btnonum{Takeaways}}{
-\begin{minipage}[t][5.8cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][6cm][t]{\linewidth}\normalsize
 \begin{itemize}[label={\color{accent}\textbullet}]
   \item Compile once ($O(K^2N^2)$), then query fast
   \item No simulation, no ODE solver
