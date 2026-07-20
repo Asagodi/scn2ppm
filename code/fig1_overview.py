@@ -46,8 +46,10 @@ axes = axes.flatten()
 
 # Consistent panel labels via style.panel_label — bold "(letter)", upper-left
 PANEL_LETTERS = list('abcdef')
-for _ax, _l in zip(axes, PANEL_LETTERS):
-    style.panel_label(_ax, _l)
+PANEL_SUBTITLES = ['Geometry', 'Eigenvector orbit', 'Cobweb',
+                    'Convergence', r"Devil's staircase", 'Firing counts']
+for _ax, _l, _s in zip(axes, PANEL_LETTERS, PANEL_SUBTITLES):
+    style.panel_label(_ax, _l, subtitle=_s, fontsize=30, y=1.02)
 
 
 # ═══ (a) Geometry: converged orbit ═══

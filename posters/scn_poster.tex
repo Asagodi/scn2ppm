@@ -52,99 +52,37 @@
 
 \newcommand{\stepbadge}[1]{%
   \tikz[baseline=(N.base)]{
-    \node[circle, fill=accent, text=white, font=\sffamily\bfseries\large,
-          inner sep=0pt, minimum size=1.4em] (N) {#1};}%
+    \node[circle, fill=accent, text=white, font=\sffamily\bfseries\small,
+          inner sep=0pt, minimum size=1.0em] (N) {#1};}%
 }
-\newcommand{\bt}[2]{{\stepbadge{#1}\hspace{0.5em}\sffamily\bfseries\color{navy}\MakeUppercase{#2}}}
-\newcommand{\btnonum}[1]{{\rule[-0.4em]{0pt}{1.7em}\sffamily\bfseries\color{navy}\MakeUppercase{#1}}}
+\newcommand{\bt}[2]{{\normalsize\stepbadge{#1}\hspace{0.5em}\sffamily\bfseries\color{navy}\MakeUppercase{#2}}}
+\newcommand{\btnonum}[1]{{\normalsize\rule[-0.4em]{0pt}{1.0em}\sffamily\bfseries\color{navy}\MakeUppercase{#1}}}
 
 \settitle{%
   \noindent
-  \begin{minipage}[t]{0.55\textwidth}\vspace{0pt}
-    \raggedright
-    {\color{navy}\bfseries\fontsize{52}{58}\selectfont
-       Spike Coding Networks as Piecewise Projective Maps:\\
-       Closed-Form Stable Periodic Firing Patterns\par}
+  \begin{minipage}[t]{0.96\textwidth}\vspace{0pt}
+    {\color{navy}\bfseries\fontsize{50}{58}\selectfont
+       Spike Coding Networks as Piecewise Projective Maps:~Closed-Form Stable Periodic Firing Patterns\par}
     \vspace*{5mm}
-    {\color{ink}\large \'Abel S\'agodi \;\textbullet\; William Podlaski \;\textbullet\; Ildefonso Ferreira Pica\par}
-    \vspace*{2mm}
-    {\color{muted}\large Champalimaud Foundation\par}
-  \end{minipage}\hfill
-  \begin{minipage}[t]{0.45\textwidth}\vspace{2mm}
-    % --- Calaim-style SCN schematic (replaces former equation box) ---
-    \noindent\makebox[\linewidth][c]{%
-      \begin{tikzpicture}[font=\large, >=Stealth, x=3.0cm, y=1.6cm]
-        % border
-        \draw[accent, line width=1pt, rounded corners=0pt]
-            (-0.20, -1.30) rectangle (9.50, 2.45);
-        \begin{scope}
-          \definecolor{nGr}{HTML}{8A8A8A}
-          % Match the two-neuron colors used throughout the poster (B1=red, B2=blue)
-          \definecolor{nBl}{HTML}{2980B9}
-          \definecolor{nRe}{HTML}{E74C3C}
-
-          % column headers (centered above each panel)
-          \node[font=\large\bfseries, navy] at (0.70, 2.15) {input $\xx$};
-          \node[font=\large\bfseries, navy] at (3.50, 2.15) {spikes $\vv{s}$};
-          \node[font=\large\bfseries, navy] at (6.05, 2.15) {weights $\DD$};
-          \node[font=\large\bfseries, navy] at (8.30, 2.15) {readout $\hat{\xx}$};
-
-          % --- input signals (panel 1: x in [0, 1.4]) ---
-          \draw[ink, line width=1.4pt]
-              (0,0.55) .. controls (0.25,0.80) and (0.45,0.25) ..
-              (0.70,0.55) .. controls (0.95,0.85) and (1.20,0.30) .. (1.40,0.50);
-          \draw[ink, line width=1.4pt]
-              (0,-0.45) .. controls (0.22,-0.70) and (0.48,-0.15) ..
-              (0.70,-0.40) .. controls (0.95,-0.60) and (1.20,-0.20) .. (1.40,-0.50);
-
-          % --- ? arrow gap (x in [1.5, 2.5]): ? stacked clearly above arrow ---
-          \node[font=\LARGE\bfseries, anchor=south, navy] at (2.00, 0.10) {?};
-          \draw[->, navy, line width=1.6pt] (1.65, -0.40) -- (2.35, -0.40);
-
-          % --- spike raster (panel 2: x in [2.7, 4.3], 4 rows) ---
-          \foreach \t in {0.05,0.55,1.05,1.45}
-              \draw[nGr, line width=1.4pt] (2.70+\t,0.85) -- (2.70+\t,1.10);
-          \foreach \t in {0.04,0.18,0.32,0.46,0.62,0.78,0.92,1.08,1.24,1.40,1.55}
-              \draw[nBl, line width=1.4pt] (2.70+\t,0.30) -- (2.70+\t,0.55);
-          \foreach \t in {0.20,0.55,0.90,1.20,1.50}
-              \draw[nGr, line width=1.4pt] (2.70+\t,-0.25) -- (2.70+\t,0.00);
-          \foreach \t in {0.03,0.13,0.23,0.34,0.45,0.57,0.68,0.80,0.92,1.05,1.18,1.30,1.42,1.54}
-              \draw[nRe, line width=1.4pt] (2.70+\t,-0.80) -- (2.70+\t,-0.55);
-
-          % --- weights D (panel 3: 4 source dots, 2 readout dots) ---
-          % absolute-mm radii so dots stay circular under anisotropic x/y units
-          \foreach \y/\col in {0.97/nGr,0.42/nBl,-0.13/nGr,-0.67/nRe}
-              \fill[\col] (5.40,\y) circle [radius=2.5mm];
-          \fill[navy] (6.80,0.45) circle [radius=3mm];
-          \fill[navy] (6.80,-0.30) circle [radius=3mm];
-          % background decoder weights (faded)
-          \foreach \y in {0.97,0.42,-0.13}{
-              \draw[nGr, opacity=0.35, line width=0.7pt] (5.50,\y) -- (6.70,0.45);
-              \draw[nGr, opacity=0.35, line width=0.7pt] (5.50,\y) -- (6.70,-0.30);}
-          % highlighted Di = orange (bottom neuron); same dot size as others
-          \draw[nRe, line width=1.8pt] (5.50,-0.67) -- (6.70,0.45);
-          \draw[nRe, line width=1.8pt] (5.50,-0.67) -- (6.70,-0.30);
-
-          % --- readout signals (panel 4: x in [7.6, 9.0]) ---
-          \draw[ink, line width=1.4pt]
-              (7.60,0.55) .. controls (7.85,0.80) and (8.05,0.25) ..
-              (8.30,0.55) .. controls (8.55,0.85) and (8.80,0.30) .. (9.00,0.50);
-          \draw[ink, line width=1.4pt]
-              (7.60,-0.45) .. controls (7.82,-0.70) and (8.08,-0.15) ..
-              (8.30,-0.40) .. controls (8.55,-0.60) and (8.80,-0.20) .. (9.00,-0.50);
-        \end{scope}
-      \end{tikzpicture}%
+    {\color{ink}\large
+      \begin{minipage}[t]{0.65\textwidth}\raggedright
+        \'Abel S\'agodi \;\textbullet\; Ildefonso Ferreira Pica \;\textbullet\; William Podlaski \textbullet\; Champalimaud Foundation
+      \end{minipage}%
+      \hfill
+      \begin{minipage}[t]{0.32\textwidth}\raggedleft
+        Dynamics Days Europe 2026, Lisbon\par
+      \end{minipage}%
     }
-  \end{minipage}%
-  \\[6mm]
-  \noindent\begin{minipage}{\linewidth}
-    {\sffamily\bfseries\large\color{accent}TL;DR.}\;
-    {\color{ink}\normalsize
-      SCN dynamics reduce \emph{exactly} to a piecewise \textbf{projective map}
-      $\xxi'=(\vv{A}\xxi+\vv{b})/(\vv{c}^\top\xxi+d)$ on the spike-bound hyperplanes.
-      Composing per-spike matrices along a firing word $\sigma$ yields a \textbf{symbolic return map} $\vv{M}_\sigma$; its leading eigenvector is the periodic orbit.
-      The \emph{inverse problem}, finding drives $\bm{\alpha}$ that realize a desired $\sigma$, has an analytical solution.}
-  \end{minipage}%
+  \end{minipage}\hfill
+  % \\[6mm]
+  % \noindent\begin{minipage}{\linewidth}
+  %   {\sffamily\bfseries\large\color{accent}TL;DR.}\;
+  %   {\color{ink}\normalsize
+  %     SCN dynamics reduce \emph{exactly} to a piecewise \textbf{projective map}
+  %     $\xxi'=(\vv{A}\xxi+\vv{b})/(\vv{c}^\top\xxi+d)$ on the spike-bound hyperplanes.
+  %     Composing per-spike matrices along a firing word $\sigma$ yields a \textbf{symbolic return map} $\vv{M}_\sigma$; its leading eigenvector is the periodic orbit.
+  %     The \emph{inverse problem}, finding drives $\bm{\alpha}$ that realize a desired $\sigma$, has an analytical solution.}
+  % \end{minipage}%
 }
 
 \tikzposterlatexaffectionproofoff
@@ -158,70 +96,122 @@
 % ROW 1: Setup + Projective Map (MERGED, full width)
 % ============================================================
 \begin{columns}
-\column{1.0}
-\block{\bt{1}{Setup \& The Projective Map}}{
-\begin{minipage}[t]{0.6\linewidth}\vspace{0pt}\normalsize
-$M$ neurons encode $\xx\in\reals^N$ via readout $\yy = \vv{D}\vv{r}$~\ref{ref:boerlin}, \ref{ref:calaim}:
-decay $\dot\yy = -\lambda\yy$; spike $\yy \mapsto \yy + \DD_i$ at $\DD_i^\top\yy = \alpha_i$.
+\column{0.5}
+\block{\bt{0}{Background}}{
+\begin{minipage}[t]{\linewidth}\vspace{0pt}\normalsize
+\textbf{Abstract:} Since the discovery that neurons communicate via discrete spikes~\ref{ref:adrian}~\ref{ref:hodgkin} a central goal of neuroscience has been to link ensemble spiking patterns to computations and behavior. Spike coding networks (SCNs)--a class of recurrent spiking neural networks--combine principles of efficient coding and neurobiology to yield dynamical models that produce spiking patterns with which these networks approximate arbitrary nonlinear input-output mappings~\ref{ref:podlaski}. SCNs remain interpretable through the geometric properties~\ref{ref:calaim} of their governing equations. We derive a discrete-time mapping of the continuous-time SCN framework to address two open questions: (1) Which periodic firing patterns are produced by a given SCN? (2) Can we construct a SCN that reliably produces a desired firing pattern?
 
-\vspace{1mm}
-Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\Bsp_i$: $\yy = \alpha_i\DD_i + \vv{U}_i\xxi$, where $\xxi\in\reals^{N-1}$ is the tangent coordinate. The full dynamics is a \textbf{piecewise projective map} on the disjoint union $\bigsqcup_i \Bsp_i$. %: a point on $\Bsp_i$ is mapped to the next firing bound $\Bsp_j$ via the formula below.
+\textbf{SNN dynamics:} Consider a network of 2 recurrently connected spiking neurons. We denote each neuron's membrane potential by $\vv{V}_i$ and assume that the neuron fires a spike when it reachtes a threshold, $\vv{T}$. The membrane potential dynamics will be described using the leaky integrate-and-fire (LIF) neuron model:
+
+\vspace{5mm}
+\begin{center}
+$\tau\dot{\vv{V}}_i(t)=-\vv{V}_i(t)+\vv{F}_i\vv{c}(t)+\sum_{j=1}^{K=2}\vv{W}_{ij}\vv{s}_j(t)+\vv{b}_i<\vv{T}_i\longrightarrow \vv{V}_i=\vv{F}_i \xx+\sum_{j=1}^{K=2}\vv{E}_i\vv{D}_j\vv{r}_j<\vv{T}_i$
+\end{center}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.38\linewidth}\vspace{0pt}\normalsize
-\colorbox{navy!7}{\parbox{0.96\linewidth}{%
-  \vspace{1.5mm}\centering\normalsize
-  $\displaystyle\xxi_j = \alpha_j\,\frac{(\alpha_i{+}1)\vv{w}_{ji}+\vv{R}_{ji}\,\xxi_i}{(\alpha_i{+}1)\cos\psi_{ji}+\vv{v}_{ji}^\top\xxi_i}$
-  \quad
-  $\vv{M}_{j\leftarrow i} {=} \begin{pmatrix} \alpha_j\vv{R}_{ji} & \alpha_j(\alpha_i{+}1)\vv{w}_{ji} \\ \vv{v}_{ji}^\top & (\alpha_i{+}1)\cos\psi_{ji} \end{pmatrix}$
-  \vspace{1.5mm}
-}}
-\end{minipage}
+\vspace{5mm}
+\begin{center}
+\resizebox{\linewidth}{!}{%
+  \includegraphics[height=5.5cm]{two_neuron_voltages.pdf}\hspace{2mm}
+  \includegraphics[height=5.5cm]{scn_schematic.pdf}%
+}
+\end{center}\normalsize
+\textbf{Autoencoder SCN:} Now consider a network that generates spike patterns such that an input signal $\xx(t)$ can be approximately recovered using a linear combination of the spikes:~$\yy(t)=\sum_{i=1}^{K}\DD_ir_i(t)$. Setting $F{=}E{=}D^\top$ we can interpret the neuron's voltage as a geometric projection of the readout error:~$\vv{V}_i=\vv{D}_i^\top\left(\xx-\yy\right)$~\ref{ref:boerlin}, \ref{ref:calaim}.
+}
+\column{0.5}
+\block{\bt{1}{Setup \& Inter-bound Geometry}}{\normalsize
+\textbf{Definitions:} $K$ neurons encode $\xx\in\reals^N$ via readout $\yy = \vv{D}\vv{r}$:
+decay $\dot\yy = -\lambda\yy$; spike $\yy \mapsto \yy + \DD_i$ at $\DD_i^\top\yy = \alpha_i$. With $\vv{U}_i$ the tangent frame of $\Bsp_i$ (its $N{-}1$ columns span the hyperplane):
+$\cos\psi_{ji}=\DD_j^\top\DD_i$ (decoder cosine);\;
+$\vv{v}_{ji}=\vv{U}_i^\top\DD_j$, $\;\vv{w}_{ji}=\vv{U}_j^\top\DD_i$ (decoders projected into the tangent frames);\;
+$\vv{R}_{ji}=\vv{U}_j^\top\vv{U}_i$ (maps tangent frame $i\!\to\!j$).
+\begin{center}
+\includegraphics[width=0.84\linewidth]{derivation_tikz.pdf}
+\end{center}
 
-\vspace{3mm}
-{\small\textbf{\color{navy}Inter-bound geometry.}\;
- With $\vv{U}_i$ the tangent frame of $\Bsp_i$ (its $N{-}1$ columns span the hyperplane):
- $\cos\psi_{ji}=\DD_j^\top\DD_i$ (decoder cosine);\;
- $\vv{v}_{ji}=\vv{U}_i^\top\DD_j$, $\;\vv{w}_{ji}=\vv{U}_j^\top\DD_i$ (decoders projected into the tangent frames);\;
- $\vv{R}_{ji}=\vv{U}_j^\top\vv{U}_i$ (maps tangent frame $i\!\to\!j$).\par}
+\vspace{1mm}
+%: a point on $\Bsp_i$ is mapped to the next firing bound $\Bsp_j$ via the formula below.
+% \end{minipage}\hfill
+% \begin{minipage}[t]{0.36\linewidth}\vspace{0pt}\normalsize
+% \colorbox{navy!7}{\parbox{0.96\linewidth}{%
+%   \vspace{1.5mm}\centering\normalsize
+%   $\displaystyle\xxi_j = \alpha_j\,\frac{(\alpha_i{+}1)\vv{w}_{ji}+\vv{R}_{ji}\,\xxi_i}{(\alpha_i{+}1)\cos\psi_{ji}+\vv{v}_{ji}^\top\xxi_i}$
+%   \quad
+%   $\vv{M}_{j\leftarrow i} {=} \begin{pmatrix} \alpha_j\vv{R}_{ji} & \alpha_j(\alpha_i{+}1)\vv{w}_{ji} \\ \vv{v}_{ji}^\top & (\alpha_i{+}1)\cos\psi_{ji} \end{pmatrix}$
+%   \vspace{1.5mm}
+% }}
+% \end{minipage}\hfill\mbox{}
 
-\vspace{4mm}
-\centering
-\includegraphics[width=0.98\linewidth]{derivation_tikz_flat.pdf}
+\vspace{3mm}\normalsize
+
+% {\small\textbf{\color{navy}Inter-bound geometry.}\;
+%  With $\vv{U}_i$ the tangent frame of $\Bsp_i$ (its $N{-}1$ columns span the hyperplane):
+%  $\cos\psi_{ji}=\DD_j^\top\DD_i$ (decoder cosine);\;
+%  $\vv{v}_{ji}=\vv{U}_i^\top\DD_j$, $\;\vv{w}_{ji}=\vv{U}_j^\top\DD_i$ (decoders projected into the tangent frames);\;
+%  $\vv{R}_{ji}=\vv{U}_j^\top\vv{U}_i$ (maps tangent frame $i\!\to\!j$).\par}
+
+% \vspace{4mm}
+% \centering
+% \includegraphics[width=0.98\linewidth]{derivation_tikz_flat.pdf}
 }
 \end{columns}
 
-% ============================================================
-% ROW 2: Orbits = Eigenvectors (FULL WIDTH)
-% ============================================================
+============================================================
+ROW 2: Orbits = Eigenvectors (FULL WIDTH)
+============================================================
 \begin{columns}
-\column{1.0}
-\block{\bt{2}{Orbits = Eigenvectors of the Return Map}}{
-\begin{minipage}[t]{\linewidth}\normalsize
-For a firing word $\sigma=(b_0,\ldots,b_{L-1})$, composing the per-spike matrices $\vv{M}_{b_{k+1}\leftarrow b_k}$ gives the \textbf{symbolic return map}
-$\vv{M}_\sigma = \prod_{k} \vv{M}_{b_{k+1}\leftarrow b_k} \in \reals^{N\times N}$, which propagates the tangent coordinate $\xxi\in\Bsp_{b_0}$ once around the cycle.\quad
-\textbf{Periodic orbit $\leftrightarrow$ eigenvector.} Picture the homogeneous coordinate $\tilde\xxi=(\xxi^{*\top},1)^\top$ as a ray through the origin of $\reals^N$, and $\xxi^*$ as the unique point where this ray pierces the affine slice $\{x_N{=}1\}$. A period-$L$ cycle returns the ray to itself, $\vv{M}_\sigma\tilde\xxi^*=\mu_1\tilde\xxi^*$: $\xxi^*$ is the dehomogenization of the dominant eigenvector. The scale $\mu_1$ does not move the pierce point and cancels.\par
-\textbf{Stability spectrum.} The return map $F=\mathrm{dh}\circ\vv{M}_\sigma$ on $\Bsp_{b_0}$ has, at its fixed point $\xxi^*$, a Jacobian with $N{-}1$ eigenvalues. Numerator $\mu_k$ along a transverse eigenvector $\vv{v}_k$, denominator $\mu_1$ along the fixed ray: the displacement on the slice is multiplied by the ratio $\mu_k/\mu_1$, one per independent perturbation direction. The orbit attracts iff every multiplier is inside the unit disk: $|\mu_k/\mu_1|<1$ for $k\ge 2$.
+% \column{0.5}
+% \block{\bt{2}{Orbits = Eigenvectors of the Return Map}}{
+% \begin{minipage}[t]{\linewidth}\normalsize
+% For a firing word $\sigma=(b_0,\ldots,b_{L-1})$, composing the per-spike matrices $\vv{M}_{b_{k+1}\leftarrow b_k}$ gives the \textbf{symbolic return map}
+% $\vv{M}_\sigma = \prod_{k} \vv{M}_{b_{k+1}\leftarrow b_k} \in \reals^{N\times N}$, which propagates the tangent coordinate $\xxi\in\Bsp_{b_0}$ once around the cycle.\quad
+% \textbf{Periodic orbit $\leftrightarrow$ eigenvector.} Picture the homogeneous coordinate $\tilde\xxi=(\xxi^{*\top},1)^\top$ as a ray through the origin of $\reals^N$, and $\xxi^*$ as the unique point where this ray pierces the affine slice $\{x_N{=}1\}$. A period-$L$ cycle returns the ray to itself, $\vv{M}_\sigma\tilde\xxi^*=\mu_1\tilde\xxi^*$: $\xxi^*$ is the dehomogenization of the dominant eigenvector. The scale $\mu_1$ does not move the pierce point and cancels.\par
+% \textbf{Stability spectrum.} The return map $F=\mathrm{dh}\circ\vv{M}_\sigma$ on $\Bsp_{b_0}$ has, at its fixed point $\xxi^*$, a Jacobian with $N{-}1$ eigenvalues. Numerator $\mu_k$ along a transverse eigenvector $\vv{v}_k$, denominator $\mu_1$ along the fixed ray: the displacement on the slice is multiplied by the ratio $\mu_k/\mu_1$, one per independent perturbation direction. The orbit attracts iff every multiplier is inside the unit disk: $|\mu_k/\mu_1|<1$ for $k\ge 2$.
 
-\vspace{1mm}
-\btnonum{Cobweb.}\;
-First-return map $F:\Bsp_1\to\Bsp_1$ has two M\"obius branches (self \& cross) joined at the partition point $\xi_{\mathrm{part}}$. Period-$L$ orbit visits $\Bsp_1$ a subset of times $\Rightarrow$ cobweb cycle.
+% \vspace{1mm}
+% \btnonum{Cobweb.}\;
+% First-return map $F:\Bsp_1\to\Bsp_1$ has two M\"obius branches (self \& cross) joined at the partition point $\xi_{\mathrm{part}}$. Period-$L$ orbit visits $\Bsp_1$ a subset of times $\Rightarrow$ cobweb cycle.
 
-\vspace{1mm}
-\btnonum{Devil's staircase.}\;
-Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\ref{ref:herman}. Period-$1\to 2$ boundary: $\alpha_j = \alpha_i\cos\psi_{ji}$.
-\end{minipage}
-}
-\end{columns}
+% \vspace{1mm}
+% \btnonum{Devil's staircase.}\;
+% Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\ref{ref:herman}. Period-$1\to 2$ boundary: $\alpha_j = \alpha_i\cos\psi_{ji}$.
+% \end{minipage}
+% }
+
 
 % ============================================================
 % ROW 3: Two-Neuron Overview (FULL WIDTH)
 % ============================================================
-\begin{columns}
-\column{1.0}
-\block{\bt{3}{Two-Neuron Overview}}{
+
+\column{0.5}
+\block{\bt{3}{Analysis of a Two-Neuron system}}{
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=0.98\linewidth]{scn_word_example_flat.pdf}
+\includegraphics[width=0.96\linewidth]{scn_word_example.pdf}
+\end{minipage}
+}
+
+\column{0.5}
+\block{\bt{2}{Projective map, return map and periodic orbits as eigenvectors}}{
+\begin{minipage}[t]{\linewidth}\normalsize
+\textbf{Aim:} Derive discrete-time mapping of the continuous-time SCN and analyze SCN periodic behavior.
+
+\textbf{Derivation:} We rewrite the expression of the single-step evolution of the network state (in tangent coordinates) into matrix form using homogeneous coordinates, resulting in a projective map:
+\begin{center}
+$\displaystyle\xxi_j = \alpha_j\,\frac{(\alpha_i{+}1)\vv{w}_{ji}+\vv{R}_{ji}\,\xxi_i}{(\alpha_i{+}1)\cos\psi_{ji}+\vv{v}_{ji}^\top\xxi_i}$
+\quad$\longrightarrow$\quad
+$\vv{M}_{j\leftarrow i} = \begin{pmatrix} \alpha_j\vv{R}_{ji} & \alpha_j(\alpha_i{+}1)\vv{w}_{ji} \\ \vv{v}_{ji}^\top & (\alpha_i{+}1)\cos\psi_{ji} \end{pmatrix}$
+\end{center}
+
+Each spike bound $\Bsp_i \subset \reals^N$ is an $(N{-}1)$-dim hyperplane. On $\Bsp_i$: $\yy = \alpha_i\DD_i + \vv{U}_i\xxi$, where $\xxi\in\reals^{N-1}$ is the tangent coordinate. The full dynamics is a \emph{piecewise projective map} on the disjoint union $\bigsqcup_i \Bsp_i$.
+
+\textbf{Results:} \emph{1. Symbolic return map:} For a firing word $\sigma=(b_0,\ldots,b_{L-1})$, composing the per-spike matrices $\vv{M}_{b_{k+1}\leftarrow b_k}$ gives the return map $\vv{M}_\sigma = \prod_{k} \vv{M}_{b_{k+1}\leftarrow b_k} \in \reals^{N\times N}$, which propagates the tangent coordinate $\xxi\in\Bsp_{b_0}$ once around the cycle.
+
+\emph{2. Periodic orbit $\leftrightarrow$ eigenvector:} Picture the homogeneous coordinate $\tilde\xxi=(\xxi^{*\top},1)^\top$ as a ray through the origin of $\reals^N$, and $\xxi^*$ as the unique point where this ray pierces the affine slice $\{x_N{=}1\}$. A period-$L$ cycle returns the ray to itself, $\vv{M}_\sigma\tilde\xxi^*=\mu_1\tilde\xxi^*$: $\xxi^*$ is the dehomogenization of the dominant eigenvector. The scale $\mu_1$ does not move the pierce point and cancels.
+
+\emph{3. Stability spectrum:} The return map $F=\mathrm{dh}\circ\vv{M}_\sigma$ on $\Bsp_{b_0}$ has, at its fixed point $\xxi^*$, a Jacobian with $N{-}1$ eigenvalues. Numerator $\mu_k$ along a transverse eigenvector $\vv{v}_k$, denominator $\mu_1$ along the fixed ray: the displacement on the slice is multiplied by the ratio $\mu_k/\mu_1$, one per independent perturbation direction. The orbit attracts iff every multiplier is inside the unit disk: $|\mu_k/\mu_1|<1$ for $k\ge 2$.
+\noindent\rule{\linewidth}{0.4pt}
+
+\textbf{Cobweb:} First-return map $F:\Bsp_1\to\Bsp_1$ has two M\"obius branches (self \& cross) joined at the partition point $\xi_{\mathrm{part}}$. Period-$L$ orbit visits $\Bsp_1$ a subset of times $\Rightarrow$ cobweb cycle. \textbf{Devil's staircase:} Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\ref{ref:herman}. Period-$1\to 2$ boundary: $\alpha_j = \alpha_i\cos\psi_{ji}$.
 \end{minipage}
 }
 \end{columns}
@@ -231,22 +221,29 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 % ============================================================
 \begin{columns}
 \column{1.0}
-\block{\bt{4}{Three Neurons and Higher $N$}}{
+\block{\bt{4}{Analysis of a Three-Neuron system and extension to Higher $N$}}{
 \begin{minipage}[t]{\linewidth}
 \vspace{0pt}
 % figure and callout side-by-side
 \begin{minipage}[t]{0.65\linewidth}\vspace{0pt}\centering
 \includegraphics[width=\linewidth]{fig_3d_example_flat.pdf}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.25\linewidth}\vspace{0pt}\raggedright
+\begin{minipage}[t]{0.34\linewidth}\vspace{0pt}\raggedright
 \colorbox{navy!7}{\parbox{\linewidth}{%
   \vspace{1mm}\normalsize
-  \textbf{\color{navy}Beyond $K{=}N{=}2$.}\;
-  The eigenvector prediction is exact at any $(K,N)$. The $K{=}N{=}3$ example verifies all $11$ orbit points to machine precision, with both stability ratios ($|\mu_2/\mu_1|=0.015$, $|\mu_3/\mu_1|=0.008$) deep inside the unit circle.
-  \emph{Multistability.}\; The mixed cyclic orbit coexists with three single-bound self-trapping orbits; a scan over $\alpha_3$ shows all firing ratios $\rho_j$ redistributing through mode-locked plateaus.
+  \textbf{\color{navy}Aim:} Extend analysis to $N{\geq}2$. \textbf{\color{navy}Results:} The eigenvector prediction is exact at any $(K,N)$. Three features distinguish $K{\geq}3$ from $K{=}2$:
+  
+  \emph{1.~Stability:} $N{-}1$ eigenvalue ratios need to be checked rather than one.
+
+  \emph{2.~Partition boundaries:} the borders between the self- and cross-return region on each bound are affine hyperplanes rather than points.
+
+  \emph{3.~Multistability:} multi-bound cyclic orbit and self-trapping orbits coexist.
+  
+  \vspace{5mm}
+  The $K{=}N{=}3$ example (\textbf{a}-\textbf{b}) verifies all $11$ orbit points to machine precision (\textbf{c}), with both stability ratios ($|\mu_2/\mu_1|=0.015$, $|\mu_3/\mu_1|=0.008$) are well inside the unit circle. Additionally, a scan over $\alpha_3$ (\textbf{d}) shows all firing ratios $\rho_j$ redistributing through mode-locked plateaus, confirming multisability.
   \vspace{1mm}
 }}
-\end{minipage}
+\end{minipage}\hfill\mbox{}
 \end{minipage}
 }
 \end{columns}
@@ -260,12 +257,15 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \block{\bt{5}{Order vs.\ Chaos}}{
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=0.97\linewidth]{chaos_figure.pdf}
+\includegraphics[width=0.91\linewidth]{chaos_figure.pdf}
 
 \vspace{2mm}
 \colorbox{navy!7}{\parbox{0.97\linewidth}{%
   \vspace{1mm}\normalsize
-  \textbf{\color{navy}A single sign controls the whole dynamics.}\;
+  \textbf{\color{navy}Aim:} Describe the conditions for chaotic behavior in SCNs.
+  
+  \vspace{1mm}
+  \textbf{\color{navy}Results:}\;
   When all pairwise decoder cosines $\cos\psi_{ij}>0$ (uniformly inhibitory connectivity), the projective return map contracts the Hilbert metric on the positive cone: every admissible periodic orbit is stable, no chaos.
   A single negative cosine breaks the cone: an explicit $K{=}4$, $N{=}3$ SCN exhibits $\lambda_{\max}\approx 0.29$~nats/step with a strange attractor (panel~c).
   \emph{Biological analogue}: balanced inhibition-dominated cortex sits inside the stable cone; disinhibition pushes cosines negative, predicting the transition to irregular firing.
@@ -277,18 +277,19 @@ Mode-locked plateaus at every rational firing ratio $\rho$~\ref{ref:arnold},\,\r
 \column{0.45}
 \block{\bt{6}{Inverse Problem}}{
 \begin{minipage}[t]{\linewidth}\normalsize
-\textbf{Given} a firing word $\sigma$, \textbf{find} drives $\bm{\alpha}$ that realize it.
+\textbf{Aim:} Given an SCN find drives $\bm{\alpha}$ that realize a target spike sequence $\sigma$.
 
 \vspace{1mm}
-\textbf{Admissibility margin} (worst-case target; competitor gap):
-\[
-  m(\bm{\alpha}) = \min_{k}\;\bigl(
-    c_{b_{k+1},k} - \max_{j\neq b_{k+1}} c_{j,k}
-  \bigr)
-\]
-$m{>}0$ realizes the word; maximize $m$ for robustness.
+\textbf{Approach:} We define and maximize \textbf{admissibility margin} (competitor gap):
+\begin{equation*}
+m(\bm{\alpha}) = \min_{k}\;\bigl(
+  c_{b_{k+1},k}(\bm{\alpha}) - \max_{j\neq b_{k+1}} c_{j,k(\bm{\alpha})}
+\bigr),~\text{where}~c_{j,k}=\frac{\alpha_j}{\vv{D}^\top_j\vv{y}_k^+(\bm{\alpha})}~\text{(decay factor)}
+\end{equation*}
+  
+\textbf{Results:} $m(\bm{\alpha})>0$ realizes the word; maximize $m(\bm{\alpha})$ for robustness.
 
-\vspace{1mm}
+\vspace{5mm}
 % Two-panel row: admissibility landscape (aspect 2.170) + RBYGYB orbit
 % (aspect 0.914 after fontsize=38 subtitle push made simon taller).
 % Widths solve w_L / 2.170 = w_R / 0.914 with w_L + w_R = 0.96 →
@@ -296,11 +297,9 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 % height. minipage[t] anchors their tops together so the subtitle text
 % (which sits at the top of each PDF after bbox_inches='tight') aligns.
 \centering
-\begin{minipage}[t]{0.676\linewidth}\raggedright
-\includegraphics[width=\linewidth]{margin_landscape.pdf}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.284\linewidth}\raggedright
-\includegraphics[width=\linewidth]{simon_rbygyb.pdf}
+\begin{minipage}[t]{0.9\linewidth}\raggedright
+\includegraphics[width=0.676\linewidth]{margin_landscape.pdf}
+\includegraphics[width=0.284\linewidth]{simon_rbygyb.pdf}
 \end{minipage}
 
 \vspace{2mm}
@@ -308,11 +307,10 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 \setlength{\fboxsep}{2pt}%
 \colorbox{navy!7}{\parbox{0.96\linewidth}{%
   \normalsize
-  \textbf{\color{accent}Working memory.}\;
-  Margin shrinks with word length $\Rightarrow$ matches the behavioral $4{\pm}1$ limit~\ref{ref:cowan}.
-  Same $(\vv{D},\bm{\alpha})$ stores multiple words (\emph{multistability}); varying $\xx$ navigates the staircase to switch between stored items.
+  \textbf{\color{accent}Working memory:}\;
+  Margin shrinks with sequence length which resembles the behavioral $4{\pm}1$ limit~\ref{ref:cowan}. \emph{Multistability}: varying the input $\xx$ navigates the staircase to switch between stored items.
   \emph{Storage is closed-form}: the drives $\bm{\alpha}$ are read off the linear program.
-  \emph{Retrieval is autonomous}: each stored word is the leading eigenvector of its own return map. %, so the orbit unfolds from any initial state in the basin.%
+  \emph{Retrieval is autonomous}: each stored sequence is the leading eigenvector of the corresponding return map. %, so the orbit unfolds from any initial state in the basin.%
 }}\par}
 
 \vspace{2mm}
@@ -320,8 +318,8 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 \setlength{\fboxsep}{2pt}%
 \colorbox{navy!7}{\parbox{0.96\linewidth}{%
   \vspace{1mm}\normalsize
-  \textbf{\color{navy}Sequence memory (motor codes).}\;
-  Precise motor sequences (e.g.\ songbird HVC syllable rasters~\ref{ref:hvc}) are naturally encoded as symbolic firing words $\sigma$: each syllable is one periodic word with its own return-map eigenvector; syllable switches are drive-triggered basin transitions on a shared decoder $\vv{D}$. Storage cost scales with $KN$, not with sequence length: \textbf{one $K{=}10$, $N{=}50$ SCN carries $23$ coexisting stable words (periods $1$--$33$)}.%
+  \textbf{\color{accent}Sequence memory (motor codes):}\;
+  Precise motor sequences (e.g.\ songbird HVC syllable rasters~\ref{ref:hvc}) are naturally encoded as symbolic firing words $\sigma$: each syllable is one periodic word with its own return-map eigenvector. Syllable switches are drive-triggered basin transitions on a shared decoder $\vv{D}$. Storage cost scales with $KN$, not with sequence length: \textbf{one $K{=}10$, $N{=}50$ SCN carries $23$ coexisting stable words (periods $1$--$33$)}.%
   \vspace{1mm}
 }}\par}
 % No vspace: Box 6 with HVC callout is actually taller than Box 5 by
@@ -370,9 +368,11 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 }
 \column{0.5}
 \block{\btnonum{References}}{
-\begin{minipage}[t][6cm][t]{\linewidth}\normalsize
+\begin{minipage}[t][6cm][t]{\linewidth}\small
 \begin{multicols}{2}
 \begin{enumerate}[label=\textbf{\color{accent}[\arabic*]}, leftmargin=*, itemsep=0pt, ref={[\arabic*]}]
+  \item\label{ref:adrian} Adrian \& Zotterman, \emph{J. of Physiology} 1926
+  \item \label{ref:hodgkin} Hodgkin \& Huxley, \emph{J. of Physiology} '52
   \item\label{ref:boerlin} Boerlin \emph{et al.}, \emph{PLoS CB} '13
   \item\label{ref:calaim} Calaim \emph{et al.}, \emph{eLife} '22
     \item\label{ref:arnold} Arnold, \emph{Izv.\ Akad.\ Nauk SSSR} '61
@@ -391,7 +391,13 @@ $m{>}0$ realizes the word; maximize $m$ for robustness.
 }
 \end{columns}
 
-
+\begin{columns}
+\column{1.0}
+\block{}{
+\centering
+\includegraphics[width=0.8\linewidth]{FCT-Funding_Poster-A0-Footer_White_EN.png}
+}
+\end{columns}
 
 \end{document}
 

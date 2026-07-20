@@ -11,15 +11,19 @@ Panels:
 
 import os
 import sys as _sys
+
 _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import numpy as np
+
 import matplotlib.pyplot as plt
-from fractions import Fraction
-from scn import (make_2d_system, step, eigenvector_orbit, first_return_B1,
-                 get_firing_ratios, dist_to_limit_cycle, simulate, find_period,
-                 simulate_euler)
+import numpy as np
 import style
+from scn import (
+    eigenvector_orbit,
+    make_2d_system,
+    simulate_euler,
+    step,
+)
 
 style.setup()
 
@@ -46,8 +50,9 @@ fig, axes = plt.subplots(1, 3, figsize=(15.0, 4.0), gridspec_kw={'width_ratios':
 
 # Consistent panel labels via style.panel_label — bold "(letter)", upper-left
 PANEL_LETTERS = list('abc')
-for _ax, _l in zip(axes, PANEL_LETTERS):
-    style.panel_label(_ax, _l)
+PANEL_SUBTITLES = ['LIF RNN dynamics', 'Voltage space', 'Geometry']
+for _ax, _l, _s in zip(axes, PANEL_LETTERS, PANEL_SUBTITLES):
+    style.panel_label(_ax, _l, subtitle=_s, fontsize=30, y=1.02)
 
 # ═══ (a) Dynamics: simulate two neurons ═══
 N, M, K = 2, 2, 2
