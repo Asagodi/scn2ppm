@@ -1,12 +1,13 @@
-"""Figure 2: Overview of SCN dynamics (K=N=2), 6 panels on 2 rows.
+"""Figure 2 variant: same 6-panel layout, non-autoencoder K=N=2 network.
 
-Panels:
-  (a) Geometry (converged orbit)
-  (b) Theoretical orbit (eigenvector positions)
-  (c) Cobweb of the first-return map F: B1 -> B1
-  (d) Convergence to the limit cycle
-  (e) Devil's staircase: firing ratio rho vs alpha_2
-  (f) Firing counts per period vs alpha_2 (rate proxy)
+Encoders e_1, e_2 = the current Fig 2 decoders (angles 0.25 rad and 0.25 + 0.4pi).
+Decoders D_1, D_2 = rotated from the encoders by +/- 6 degrees, so D_i != e_i
+(non-autoencoder). Bounds move with D, so the geometry differs from Fig 2.
+Drives (alpha_1, alpha_2) are re-tuned by grid search so the same rho = 2/7
+firing word class (period 7 with 2 neuron-2 firings) is admissible.
+
+Panel (a) shows both encoder (dashed) and decoder (solid) arrows to make the
+non-autoencoder structure visible.
 """
 
 import os
@@ -22,19 +23,29 @@ import style
 
 style.setup()
 
-# ── Parameters ──
-# Matches interactive reference media/check/devil_slider.html on alpha_1=1
-# (first-frame isolated-D1 ISI T = ln(1+1/alpha_1) = ln 2 = 0.693 tau) and
-# alpha_2 sweep window [0.25, 1.0]. THETA1 is the decoder-1 orientation
-# angle; it rotates panels (a)-(b) rigidly and has NO effect on the
-# staircase rho(alpha_2), which depends only on psi and alpha_1.
-PSI = 0.4 * np.pi
-THETA1 = 0.25
-A1, A2 = 1.0, 0.49
-WORD = [0, 0, 1, 0, 0, 0, 1]
+# ── Parameters (non-autoencoder variant) ──
+# Encoder e_i = original Fig 2 decoder directions.
+E_THETA1 = 0.25
+E_PSI    = 0.4 * np.pi
+E1 = np.array([np.cos(E_THETA1),          np.sin(E_THETA1)])
+E2 = np.array([np.cos(E_THETA1 + E_PSI),  np.sin(E_THETA1 + E_PSI)])
+
+# Decoder D_i = encoder rotated by +/- DELTA (so D_i != e_i, non-AE).
+# DELTA = 15 deg is a good compromise: visibly distinct E vs D in panel (a),
+# while the staircase (panels e,f) still spans a wide alpha_2 range.
+DELTA = np.deg2rad(15.0)
+THETA1 = E_THETA1 + DELTA                    # new decoder-1 angle
+D_THETA2 = E_THETA1 + E_PSI - DELTA          # new decoder-2 angle
+PSI = D_THETA2 - THETA1                      # effective decoder-decoder angle (~42 deg)
+
+# Drives re-tuned so a rho = 2/7 (period-7) word is admissible on the new D.
+A1, A2 = 1.0, 0.813
+WORD = [0, 0, 1, 0, 0, 1, 0]                 # cyclic rotation of Fig 2's word
 
 sys = make_2d_system(THETA1, PSI, A1, A2)
 DS, ES = sys['DS'], sys['ES']
+# Encoder arrows (informational only — the SCN step function uses D, not E).
+ENC = [E1, E2]
 orbit, ev, xi_star = eigenvector_orbit(WORD, sys)
 ext = 3.5
 
@@ -54,19 +65,41 @@ for _ax, _l, _s in zip(axes, PANEL_LETTERS, PANEL_SUBTITLES):
 
 # ═══ (a) Geometry: converged orbit ═══
 ax = axes[0]
+# Two arrows per neuron, both from the origin: decoder D_i (solid, longer)
+# and encoder e_i (dashed, shorter). Different lengths let the two labels
+# sit at well-separated tips even though the vectors are only ~15 deg apart.
+D_LEN = 0.85
+E_LEN = 0.50
 for i, (col, lbl) in enumerate(zip(style.NEURON_COLORS[:2],
                                      [r'$\mathcal{B}_1$', r'$\mathcal{B}_2$'])):
     d, e, a = DS[i], ES[i].ravel(), sys['alphas'][i]
     foot = a * d
+
+    # Bound line (unchanged).
     ax.plot([foot[0] - ext*e[0], foot[0] + ext*e[0]],
-            [foot[1] - ext*e[1], foot[1] + ext*e[1]], color=col, lw=1.5, label=lbl)
-    ax.annotate('', xy=foot + 0.35*d, xytext=foot,
-                arrowprops=dict(arrowstyle='->', color=col, lw=2.0))
-    off = 0.12 * e.ravel()
-    _tx = foot[0]+0.4*d[0]+off[0]
-    _ty = 0.3 if i == 0 else foot[1]+0.4*d[1]+off[1]
-    ax.text(_tx, _ty, f'$\\mathbf{{D}}_{i+1}$',
-            fontsize=15, color=col, fontweight='bold')
+            [foot[1] - ext*e[1], foot[1] + ext*e[1]],
+            color=col, lw=1.5, label=lbl)
+
+    # Decoder arrow FROM ORIGIN (solid, longer).
+    d_vec = d * D_LEN
+    ax.annotate('', xy=d_vec, xytext=(0, 0),
+                arrowprops=dict(arrowstyle='->', color=col, lw=2.2))
+    # Decoder label at arrow tip, nudged outward along D.
+    lbl_d = d_vec + 0.13 * d
+    ax.text(lbl_d[0], lbl_d[1], f'$\\mathbf{{D}}_{i+1}$',
+            fontsize=15, color=col, fontweight='bold',
+            ha='center', va='center')
+
+    # Encoder arrow FROM ORIGIN (dashed, shorter).
+    e_vec = ENC[i] * E_LEN
+    ax.annotate('', xy=e_vec, xytext=(0, 0),
+                arrowprops=dict(arrowstyle='->', color=col, lw=1.8,
+                                linestyle='--', alpha=0.9))
+    # Encoder label at arrow tip, nudged along E.
+    lbl_e = e_vec + 0.14 * ENC[i]
+    ax.text(lbl_e[0], lbl_e[1], f'$\\mathbf{{E}}_{i+1}$',
+            fontsize=13, color=col, fontweight='bold', style='italic',
+            ha='center', va='center')
 
 xi_k, bi_k = xi_star.copy(), WORD[0]
 _spike_dots = []   # (position, color) — plotted last so they sit ON the bound
@@ -94,7 +127,9 @@ ax.set_xlim(-0.25, 2); ax.set_ylim(-0.25, 2)
 ax.set_xticks([0, 1, 2]); ax.set_yticks([0, 1, 2])
 ax.set_xlabel('$y_1$'); ax.set_ylabel('$y_2$')
 ax.set_aspect('equal')
-leg = ax.legend(fontsize=13, loc='upper left', framealpha=0.85)
+leg = ax.legend(fontsize=13, loc='upper right', framealpha=1.0,
+                facecolor='white', edgecolor='#bbb', fancybox=False)
+leg.set_zorder(50)
 for txt, col in zip(leg.get_texts(), style.NEURON_COLORS[:2]):
     txt.set_color(col); txt.set_fontweight('bold')
 
@@ -129,7 +164,9 @@ ax.set_xlim(-0.25, 2); ax.set_ylim(-0.25, 2)
 ax.set_xticks([0, 1, 2]); ax.set_yticks([0, 1, 2])
 ax.set_xlabel('$y_1$'); ax.set_ylabel('$y_2$')
 ax.set_aspect('equal')
-leg = ax.legend(fontsize=13, loc='upper left', framealpha=0.85)
+leg = ax.legend(fontsize=13, loc='upper right', framealpha=1.0,
+                facecolor='white', edgecolor='#bbb', fancybox=False)
+leg.set_zorder(50)
 for txt, col in zip(leg.get_texts(), style.NEURON_COLORS[:2]):
     txt.set_color(col); txt.set_fontweight('bold')
 
@@ -230,13 +267,15 @@ ax.legend(fontsize=13, loc='lower left', framealpha=0.85)
 # ═══ (e) Devil's staircase ═══ (needs a2_range + rho_vals for panel f too)
 # Staircase computation is the expensive step (~5 min at 750 alpha_2 samples).
 # Cache to code/.cache_staircase.npz and reload if params match.
-# Force recompute with `python fig1_overview.py --recompute` or env SCN_RECOMPUTE=1.
+# Force recompute with `python fig_overview.py --recompute` or env SCN_RECOMPUTE=1.
 ax = axes[4]
 _code_dir = os.path.dirname(os.path.abspath(__file__))
-_cache_path = os.path.join(_code_dir, '.cache_staircase.npz')
+_cache_path = os.path.join(_code_dir, '.cache_staircase_nonAE.npz')
 _force_recompute = ('--recompute' in _sys.argv) or (os.environ.get('SCN_RECOMPUTE') == '1')
 
-_a2_range_target = np.linspace(0.25, 1.0, 750)   # matches devil_slider.html grid
+# Staircase range for the new geometry: alpha_2 in [A1*cos(psi), A1/cos(psi)]
+# ~ [0.74, 1.35] at psi=42 deg, A1=1.0.
+_a2_range_target = np.linspace(0.60, 1.35, 750)
 _cache_hit = False
 if not _force_recompute and os.path.exists(_cache_path):
     _d = np.load(_cache_path)
@@ -304,8 +343,8 @@ ax.plot(A2, 2/7, '*', color=style.COLORS['red'], ms=12,
         markeredgecolor='k', markeredgewidth=0.5, zorder=10,
         label=r'Example $\rho=2/7$')
 ax.set_xlabel(r'Drive $\alpha_2$'); ax.set_ylabel(r'Firing ratio $\rho$')
-ax.set_xlim(0.25, 1); ax.set_ylim(-0.02, 0.55)
-ax.set_xticks([0.25, 0.5, 0.75, 1]); ax.set_yticks([0, 0.25, 0.5])
+ax.set_xlim(0.60, 1.35); ax.set_ylim(-0.02, 1.02)
+ax.set_xticks([0.75, 1.0, 1.25]); ax.set_yticks([0, 0.5, 1.0])
 leg = ax.legend(fontsize=13, loc='lower right', framealpha=0.85)
 legend_colors = [style.COLORS['accent'], style.COLORS['purple'], style.COLORS['red']]
 for txt, col in zip(leg.get_texts(), legend_colors):
@@ -357,9 +396,9 @@ ax.plot(a2_range, n2_vals, color=style.NEURON_COLORS[1], lw=1.3, alpha=0.85,
 ax.axvline(A2, color=style.COLORS['red'], ls=':', lw=1.0, alpha=0.7)
 ax.set_xlabel(r'Drive $\alpha_2$')
 ax.set_ylabel('Spikes per return period')
-ax.set_xlim(0.25, 1)
+ax.set_xlim(0.60, 1.35)
 ax.set_ylim(0, 40)
-ax.set_xticks([0.25, 0.5, 0.75, 1])
+ax.set_xticks([0.75, 1.0, 1.25])
 ax.set_yticks([0, 20, 40])
 leg = ax.legend(fontsize=13, loc='upper left', framealpha=0.85)
 _period_col = ['#333333'] + list(style.NEURON_COLORS[:2])
@@ -370,6 +409,16 @@ for txt, col in zip(leg.get_texts(), _period_col):
 fig.tight_layout(w_pad=1.2, h_pad=1.2, pad=0.1)
 
 _here = os.path.dirname(os.path.abspath(__file__))
-_out = os.path.normpath(os.path.join(_here, '..', 'figures', 'scn_word_example.pdf'))
+
+# POSTER version (panel labels at fontsize=30, already set)
+_out = os.path.normpath(os.path.join(_here, '..', 'figures', 'scn_word_example_nonAE.pdf'))
 fig.savefig(_out, dpi=300, bbox_inches='tight', pad_inches=0.02)
 print(f"Saved {_out}")
+
+# PAPER version: shrink panel labels to 18pt so they match Fig 4's other
+# subplots (fig_inverse_scaling, fig_margin_landscape_paper).
+for _ax, _l, _s in zip(axes, PANEL_LETTERS, PANEL_SUBTITLES):
+    style.panel_label(_ax, _l, subtitle=_s, fontsize=18, y=1.02)
+_out_paper = os.path.normpath(os.path.join(_here, '..', 'figures', 'scn_word_example_nonAE_paper.pdf'))
+fig.savefig(_out_paper, dpi=300, bbox_inches='tight', pad_inches=0.02)
+print(f"Saved {_out_paper}")
