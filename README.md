@@ -91,31 +91,6 @@ Everything else is a thin wrapper around these.
 
 ---
 
-## Paper figures and the scripts that make them
-
-| Figure | Output | Script |
-|---|---|---|
-| **1** Geometric derivation of the transition matrix | `figures/derivation_tikz.pdf` | `code/derivation_tikz.tex` (`pdflatex`) |
-| **2** Overview at N=K=2: geometry, orbit, cobweb, convergence, staircase | `figures/scn_word_example_paper.pdf` | `code/fig_overview.py` |
-| **3** Order and chaos at K=4, N=3 | `figures/chaos_figure.pdf` | `code/fig_chaos.py` |
-| **4** Inverse problem: margin landscapes and solver scaling | `figures/inverse_paper.pdf` | `code/fig_inverse.py` |
-| **5** Simon sequence stored as a period-6 orbit | `figures/simon_rbygyb_paper.pdf` | `code/fig_simon_box6.py` |
-| **6** Chirality multistability and the line attractor | `figures/multistability_pair.pdf` | `code/fig_multistability_pair.py` |
-
-Supplement:
-
-| Figure | Output | Script |
-|---|---|---|
-| Worked K=3, N=3 example | `figures/fig_3d_example.pdf` | `code/fig_3d_example.py` |
-| Devil's staircases along each drive | `figures/fig_3d_staircases.pdf` | `code/fig_3d_staircases.py` |
-| Cobweb gallery across eight plateaus | `figures/cobweb_gallery.pdf` | `code/fig_cobweb_gallery.py` |
-| Combined drive and decoder noise | `figures/combined_noise.pdf` | `code/fig_combined_noise.py` |
-| Attractor zoo, wide cone at N=50, K=10 | `figures/orbit_zoo_wide_N50.pdf` | `code/fig_orbit_zoo.py` |
-| Basin map on a random tangent slice | `figures/basin_map_wide.pdf` | `code/fig_basin_map.py` |
-| Atlas of 23 coexisting attractors | `figures/multistability_highD.pdf` | `code/fig_multistability_highD.py` |
-
----
-
 ## Repository layout
 
 ```
@@ -124,7 +99,7 @@ scn2ppm/
 │   ├── scn.py            core: transition matrices, eigenvector orbits, margin
 │   ├── style.py          shared matplotlib style
 │   ├── generate_all.py   runner, regenerates all figures or one
-│   └── fig_*.py          one per figure (see the tables above)
+│   └── fig_*.py          one per figure (figures/README.md maps them)
 ├── figures/              rendered figure PDFs, and the output directory
 ├── interactive_figures/  rotatable HTML versions
 ├── docs/                 the project page served by GitHub Pages
@@ -151,8 +126,9 @@ The supplement builds the same way and picks up cross-references through
 
 ## Citation
 
-Á. Ságodi and I. M. Park, *Spike coding networks are exactly solvable: periodic firing patterns
-as eigenvectors*.
+Á. Ságodi, I. Ferreira Pica and W. F. Podlaski, *Spike Coding Networks Are Exactly Solvable:
+Periodic Firing Patterns as Eigenvectors.* A full entry with venue will be added when the
+paper appears.
 
 ## License
 

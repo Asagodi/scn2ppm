@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCN Interactive Figures</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #595959;
+    --line: #e2e2e2; --accent: #0072B2; --card: #fafafa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171a; --fg: #eceef0; --muted: #a7acb2;
+      --line: #2b2f35; --accent: #56B4E9; --card: #1b1e22;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15171a; --fg: #eceef0; --muted: #a7acb2;
+    --line: #2b2f35; --accent: #56B4E9; --card: #1b1e22;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1.6; padding: 0 16px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 0 72px; }
+  h1 { font-size: 1.75rem; line-height: 1.25; margin: 0 0 .4rem; font-weight: 600; }
+  .sub { color: var(--muted); margin: 0 0 2rem; }
+  h2 { font-size: 1.05rem; margin: 2.5rem 0 .75rem; font-weight: 600;
+       text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  a { color: var(--accent); }
+  ul.cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  li.card { border: 1px solid var(--line); border-radius: 8px;
+            background: var(--card); padding: 16px 18px; }
+  li.card a { font-weight: 600; text-decoration: none; font-size: 1.05rem; }
+  li.card a:hover { text-decoration: underline; }
+  li.card p { margin: .35rem 0 0; color: var(--muted); font-size: .95rem; }
+  footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .9rem; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Spike coding networks as piecewise projective maps</h1>
+  <p class="sub">Rotatable versions of the figures. Drag to turn the scene, scroll to zoom,
+  and click a legend entry to hide a trace.</p>
+
+  <h2>Orbits in three dimensions</h2>
+  <ul class="cards">
+    <li class="card">
+      <a href="interactive/simon_rbygyb_3d.html">Simon sequence RBYGYB</a>
+      <p>The period-6 orbit of Figure 5 on a four-neuron, three-dimensional network,
+      with the four spike bounds and the spike-and-decay path between them.</p>
+    </li>
+    <li class="card">
+      <a href="interactive/multistability_3d.html">Chirality multistability</a>
+      <p>Two period-3 orbits coexisting at one parameter setting, related by swapping
+      neurons 2 and 3, with the initial state deciding which one is reached.</p>
+    </li>
+    <li class="card">
+      <a href="interactive/la_3d_orbit_family.html">Line attractor, orbit family</a>
+      <p>The degenerate case in which the isolated orbit gives way to a one-parameter
+      family sharing a single firing word.</p>
+    </li>
+    <li class="card">
+      <a href="interactive/la_3d_causal.html">Line attractor, causal view</a>
+      <p>The same construction followed spike by spike, showing which bound is reached
+      at each step.</p>
+    </li>
+  </ul>
+
+  <h2>Parameter sweeps</h2>
+  <ul class="cards">
+    <li class="card">
+      <a href="interactive/single_theta_sweep.html">Decoder angle sweep</a>
+      <p>How the orbit and the firing ratio move as one decoder is rotated.</p>
+    </li>
+  </ul>
+
+  <footer>
+    Two further interactive figures, a devil's staircase slider and a tilting-bound
+    view, are in <code>interactive_figures/</code> in the repository. They are too
+    large to serve here and are best opened locally.
+    <br><br>
+    Source and paper: <a href="https://github.com/Asagodi/scn2ppm">github.com/Asagodi/scn2ppm</a>
+  </footer>
+
+</div>
+</body>
+</html>

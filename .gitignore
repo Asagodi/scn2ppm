@@ -58,8 +58,9 @@ Thumbs.db
 paper/*.pdf
 posters/*.pdf
 
-# Figure PDFs and PNGs ARE tracked (shipping artifacts of the paper).
-# HTML interactive figures + intermediate SVGs are still generated on demand:
+# Figure PDFs ARE tracked (shipping artifacts of the paper). Rasters and intermediate
+# SVGs in figures/ are regenerated on demand and stay out; the web-sized previews the
+# README shows live in docs/img/ and are tracked.
 figures/*.html
 figures/*.svg
 figures/*.png
