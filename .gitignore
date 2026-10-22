@@ -65,6 +65,8 @@ figures/*.html
 figures/*.svg
 figures/*.png
 
-# cached data
+# Cached intermediates, rebuilt by the figure scripts on demand. The slow scans
+# (basin map, orbit zoo) write these so a rerun does not repeat the computation.
 code/.cache*.npz
+code/_*.json
 
