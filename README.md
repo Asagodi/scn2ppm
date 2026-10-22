@@ -28,15 +28,14 @@ so these open on the project page:
 
 | | |
 |---|---|
+| [Devil's staircase](https://asagodi.github.io/scn2ppm/interactive/devil_slider.html) | two neurons swept across the admissibility window, the firing ratio holding constant over whole intervals of drive (about 33 MB) |
 | [Simon sequence RBYGYB](https://asagodi.github.io/scn2ppm/interactive/simon_rbygyb_3d.html) | the period-6 orbit on a four-neuron network, with all four spike bounds |
 | [Chirality multistability](https://asagodi.github.io/scn2ppm/interactive/multistability_3d.html) | two period-3 orbits coexisting at one parameter setting |
-| [Line attractor, orbit family](https://asagodi.github.io/scn2ppm/interactive/la_3d_orbit_family.html) | the degenerate case where an isolated orbit becomes a one-parameter family |
-| [Line attractor, causal view](https://asagodi.github.io/scn2ppm/interactive/la_3d_causal.html) | the same construction followed spike by spike |
-| [Decoder angle sweep](https://asagodi.github.io/scn2ppm/interactive/single_theta_sweep.html) | how the orbit moves as one decoder is rotated |
+| [Line attractor](https://asagodi.github.io/scn2ppm/interactive/la_3d_orbit_family.html) | the degenerate case where an isolated orbit becomes a one-parameter family, every point of the black segment starting an orbit with the same firing word |
 
-Two more, a devil's staircase slider and a tilting-bound view, live in `interactive_figures/`.
-They are tens of megabytes because they embed their own data, so they are not served on the
-project page and are best opened locally.
+A tilting-bound view also lives in `interactive_figures/`, along with a per-orbit version of
+the line attractor and a decoder-tilt sweep whose analysis is not finished. They are not
+served on the project page.
 
 ---
 
