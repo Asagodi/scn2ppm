@@ -33,6 +33,14 @@ def tangent_frame(d: np.ndarray) -> np.ndarray:
     U : (N, N-1) orthonormal matrix with U^T d = 0
     """
     N = len(d)
+    # N=2 is the one case where the paper fixes a sign convention:
+    # U_i = (-sin theta_i, cos theta_i), the +90 degree rotation of D_i
+    # (Prop. "first-return map", Step 4). Plain Gram-Schmidt below returns the
+    # NEGATIVE of this, which silently flips the sign of every tangent
+    # coordinate xi relative to the paper's formulas and to make_2d_system.
+    # Special-case it so the whole module agrees with the derivation.
+    if N == 2:
+        return np.array([[-d[1]], [d[0]]])
     cols = []
     for i in range(N):
         v = np.zeros(N)

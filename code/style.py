@@ -5,10 +5,12 @@ overrides for math fonts, line weights, and consistent typography across all
 figures.
 """
 
+import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 
 try:
     import seaborn as sns
@@ -17,18 +19,43 @@ except ImportError:
     _HAS_SEABORN = False
 
 
+# Register user-installed CMU fonts once at import time. On Windows CMU is
+# installed per-user, and matplotlib scans only the system font registry —
+# without this bootstrap, matplotlib silently falls back to DejaVu.
+# See ~/.claude/FIGURE_STYLE.md.
+def _register_user_fonts():
+    for root in [os.path.expandvars(r'%LOCALAPPDATA%\Microsoft\Windows\Fonts')]:
+        if not os.path.isdir(root):
+            continue
+        for f in fm.findSystemFonts(fontpaths=[root]):
+            try:
+                fm.fontManager.addfont(f)
+            except Exception:
+                pass
+
+
+_register_user_fonts()
+
+
 def setup():
     """Apply seaborn-based clean style with paper-matching math fonts."""
     if _HAS_SEABORN:
         sns.set_theme(context='paper', style='ticks', palette='deep',
                       font='serif', rc={'axes.linewidth': 0.9})
 
-    # Real LaTeX so calligraphic / fancy math glyphs match the paper exactly.
+    # CMU everywhere: matches the LaTeX body of the paper (Computer Modern
+    # is Knuth's font; "CMU Serif" is the TrueType port; "Latin Modern
+    # Roman" is the scalable Type1 version). Under text.usetex=True, LaTeX
+    # renders CMU natively when we drop the mathptmx (Times) package.
     mpl.rcParams["text.usetex"] = True
-    mpl.rcParams["text.latex.preamble"] = r"\usepackage{mathptmx}"
+    # amsmath/amssymb/bm give us \boldsymbol, \mathbb, \bm; no font pkg -> CMU.
+    mpl.rcParams["text.latex.preamble"] = (
+        r"\usepackage{amsmath}\usepackage{amssymb}\usepackage{bm}"
+    )
     mpl.rcParams["mathtext.fontset"] = "cm"
     mpl.rcParams["font.family"] = "serif"
-    mpl.rcParams["font.serif"] = ["Times", "Computer Modern Roman", "DejaVu Serif"]
+    mpl.rcParams["font.serif"] = ["CMU Serif", "Latin Modern Roman",
+                                    "Computer Modern Roman", "DejaVu Serif"]
     mpl.rcParams["axes.formatter.use_mathtext"] = True
 
     # Consistent type sizes across every figure: bumped up vs the old defaults

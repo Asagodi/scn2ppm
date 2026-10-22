@@ -3,13 +3,13 @@
 
 Usage:
     python generate_all.py          # regenerate everything
-    python generate_all.py fig1     # regenerate just one figure
+    python generate_all.py fig_overview     # regenerate just one figure
     python generate_all.py list     # list available figures
 
 All outputs go to ../figures/ (relative to this script).
 
 Runtimes on a single CPU (informative only):
-    fig1               ~5 s
+    fig_overview       ~5 s
     margin             ~10 s
     inverse_scaling    ~2 s
     3d_example         ~5 s
@@ -35,7 +35,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 FIGURES = {
     # ── Main text ──
-    'fig1':               ('fig1_overview.py',               'Fig. 2 — Overview: geometry, orbit, cobweb, staircase'),
+    'fig_overview':       ('fig_overview.py',                'Fig. 2 — Overview: geometry, orbit, cobweb, staircase'),
     'margin':             ('fig_margin_landscape.py',        'Fig. 4a,b — Admissibility-margin landscape'),
     'inverse_scaling':    ('fig_inverse_scaling.py',         'Fig. 4c — Inverse-solver scaling m*(K)'),
     'simon_3d':           ('fig_simon_3d.py',                'Fig. 5 — Simon RGB canonical exemplar (plotly)'),
