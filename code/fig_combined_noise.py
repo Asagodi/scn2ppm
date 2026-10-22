@@ -19,11 +19,7 @@ from scn import make_3d_symmetric_system, step, find_period
 
 import style
 
-style.setup()
-# This figure has no calligraphic symbols, so we use the much faster mathtext
-# renderer rather than spawning a latex process per cell annotation.
-import matplotlib as mpl
-mpl.rcParams['text.usetex'] = False
+style.setup()   # CMU font, text.usetex=True (needed for \boldsymbol)
 
 # ---- Reference system + target word ----
 ALPHAS = [1.0, 0.9, 0.7]

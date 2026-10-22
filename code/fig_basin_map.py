@@ -1,16 +1,15 @@
 """Map the basins of attraction of the wide-cone N=50, K=10 network on a
 2D slice of state space."""
 import sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import time
 import json
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import style
-style.setup()
-mpl.rcParams['text.usetex'] = False
+style.setup()   # CMU font + rcParams (see style.py)
 
 
 def make_cone_system(K, N, seed, max_halfangle):
@@ -140,6 +139,32 @@ else:
                    'n_done': n_done}, f)
     print(f"  cached to {_cache}")
 
+# --- Merge extended-budget classification of short-pass "unknowns" ------------
+# The short-burn simulate_canonical above misses long-period orbits (period > 35
+# or slow convergence) and leaves those cells as `None` — i.e. "diverged" in the
+# colour map. The extended-budget pass (_diverged_classify.py, 20k burn-in,
+# max period 130) reclassifies every one of those cells as a genuine long-period
+# attractor. Loading its output collapses the "diverged" slice to zero and
+# gives the merged basin map the paper reports.
+_classify_path = os.path.normpath(os.path.join(_here, '_diverged_classify.json'))
+if os.path.exists(_classify_path):
+    with open(_classify_path) as f:
+        classify_data = json.load(f)
+    n_reclassified = 0
+    for entry in classify_data['details']:
+        i, j = entry['i'], entry['j']
+        info = entry.get('info') or {}
+        if entry['outcome'] == 'long_period' and 'canonical' in info:
+            w = tuple(info['canonical'])
+            if basin_grid[j, i] is None:
+                basin_grid[j, i] = w
+                basin_count[w] = basin_count.get(w, 0) + 1
+                n_done += 1
+                n_reclassified += 1
+    print(f"  merged extended-budget classifier: "
+          f"{n_reclassified} cells long-period, "
+          f"{len(basin_count)} total attractors now")
+
 print(f"\nTop by basin size:")
 for w, c in sorted(basin_count.items(), key=lambda kv: -kv[1])[:10]:
     print(f"  basin {c}/{n_done} ({100*c/n_done:.1f}%), period {len(w)}, "
@@ -147,8 +172,9 @@ for w, c in sorted(basin_count.items(), key=lambda kv: -kv[1])[:10]:
 
 # Build colour array — only as many slots as actual attractors on this slice
 sorted_attrs = sorted(basin_count.items(), key=lambda kv: -kv[1])
-# Show top 12 individually, group the rest as "other"; if <= 12, no "other" group
-SHOW_TOP = min(12, len(sorted_attrs))
+# Show ALL attractors individually (no "other" grouping); the wide-cone slice
+# typically has ~10 attractors, all worth listing with their Fig 10 letter.
+SHOW_TOP = len(sorted_attrs)
 has_other = len(sorted_attrs) > SHOW_TOP
 top_to_idx = {a[0]: i for i, a in enumerate(sorted_attrs[:SHOW_TOP])}
 
@@ -169,13 +195,16 @@ for i in range(RES):
             color_grid[j, i] = top_to_idx[w]
         else:
             color_grid[j, i] = OTHER
+n_diverged = int(np.sum(color_grid == DIVERGED))
+has_diverged = n_diverged > 0
 
-# Colour list: SHOW_TOP attractor colors + optional gray + black
+# Colour list: SHOW_TOP attractor colors + optional gray + optional black
 cmap_attractors = mpl.cm.tab20
 cmap_list = [cmap_attractors(i) for i in range(SHOW_TOP)]
 if has_other:
     cmap_list.append((0.6, 0.6, 0.6, 1.0))   # gray for "other"
-cmap_list.append((0, 0, 0, 1))               # black for "diverged"
+if has_diverged:
+    cmap_list.append((0, 0, 0, 1))           # black for "diverged"
 
 # Use BoundaryNorm: each integer value gets one color slot.
 n_colors = len(cmap_list)
@@ -183,38 +212,113 @@ boundaries = np.arange(-0.5, n_colors + 0.5)
 norm = mpl.colors.BoundaryNorm(boundaries, n_colors)
 custom_cmap = mpl.colors.ListedColormap(cmap_list)
 
-# Plot
-fig, ax = plt.subplots(figsize=(7, 6.5))
-ax.imshow(color_grid, origin='lower',
+# Plot — main basin map on the left, aligned table-legend on the right.
+# Widened sidebar (was 6.5:3.0) so cells can fit larger fonts.
+fig = plt.figure(figsize=(10.5, 6.5))
+gs = fig.add_gridspec(1, 2, width_ratios=[6.5, 4.0], wspace=0.05)
+ax = fig.add_subplot(gs[0, 0])
+ax_leg = fig.add_subplot(gs[0, 1])
+# Matplotlib writes ≤256-colour images as 4-bit /Indexed with PNG predictor,
+# yielding row widths of 1713*4=6852 bits (non-integer bytes). Acrobat
+# rejects that with "Insufficient data for an image". Force an 8-bit RGB
+# image by (i) building an explicit uint8 (H, W, 3) array and (ii) writing
+# it directly as a PNG-in-PDF via ax.imshow with rasterized=True.
+rgb_grid = np.zeros((RES, RES, 3), dtype=np.float32)
+for jj in range(RES):
+    for ii in range(RES):
+        rgb_grid[jj, ii] = cmap_list[color_grid[jj, ii]][:3]
+# One-LSB dithering (±1/510) breaks matplotlib's ≤256-colour detection so
+# it writes an 8-bit /DeviceRGB image instead of 4-bit /Indexed. Invisible
+# to the eye, decisive for Acrobat.
+rgb_grid = np.clip(
+    rgb_grid + np.random.default_rng(0).uniform(-1/510, 1/510, rgb_grid.shape),
+    0.0, 1.0)
+ax.imshow(rgb_grid, origin='lower',
           extent=[xs[0], xs[-1], ys[0], ys[-1]],
-          cmap=custom_cmap, norm=norm,
-          interpolation='nearest', aspect='equal')
-ax.set_xlabel('$\\xi$ component along $v_1$', fontsize=11)
-ax.set_ylabel('$\\xi$ component along $v_2$', fontsize=11)
-ax.set_title(f'Basins of attraction at $N=50$, $K=10$, half-angle 1.16 rad\n'
-              f'{len(basin_count)} distinct attractors on slice; '
-              f'2D slice of 49-D tangent space on $\\mathcal{{B}}_0$',
-              fontsize=10)
+          interpolation='nearest', aspect='equal',
+          rasterized=True)
+# Figure is included at 0.75*textwidth in the paper; source-side fonts are
+# scaled up (roughly 1/0.75 = 1.33x) so on-page rendering matches other
+# figures (~16pt effective for ticks, ~20pt for labels).
+ax.set_xlabel(r'$\xi$ component along $v_1$', fontsize=28)
+ax.set_ylabel(r'$\xi$ component along $v_2$', fontsize=28)
+ax.tick_params(labelsize=22)
 
-# Legend — perfectly matched to the cmap_list ordering
-from matplotlib.patches import Patch
-legend_elements = []
+# --- Right-side table-legend -------------------------------------------------
+# Header + one row per attractor + optional "other" + "diverged". Column-1 is
+# a filled colour swatch (BLANK text over a coloured background); remaining
+# columns are rank, period L, distinct-firer count u, basin %.
+ax_leg.axis('off')
+
+# Load Fig 10's canonical-word -> panel-letter map (built by fig_orbit_zoo.py)
+# so this legend can annotate which Fig 10 panel each attractor corresponds to.
+_letter_map_path = os.path.normpath(os.path.join(_here, '_orbit_zoo_letters.json'))
+letter_map = {}
+if os.path.exists(_letter_map_path):
+    with open(_letter_map_path) as f:
+        letter_map = json.load(f)
+
+
+def zoo_panel(word):
+    """Return Fig 10 panel letter for a given canonical word, or '--'."""
+    return letter_map.get(str(tuple(word)), '--')
+
+
+# 5 columns: swatch | Fig10 panel | period L | unique-firer u | basin %.
+# Dropped the rank column (#): Fig10 letter already identifies each attractor.
+col_labels = ['', 'Fig10', r'$L$', r'$u$', 'basin \\%']
+
+def _row(panel, period, uniq, pct, colour):
+    return [' ', panel, period, uniq, pct], colour
+
+table_rows = []
+table_colours = []
 for i, (w, count) in enumerate(sorted_attrs[:SHOW_TOP]):
     pct = 100 * count / n_done
-    label = f'#{i+1}: period {len(w)}, {len(set(w))}u, {pct:.1f}%'
-    legend_elements.append(Patch(facecolor=cmap_list[i], label=label))
+    r, c = _row(zoo_panel(w), f'{len(w)}', f'{len(set(w))}',
+                f'{pct:.1f}', cmap_list[i])
+    table_rows.append(r); table_colours.append(c)
 if has_other:
     n_other_attractors = len(sorted_attrs) - SHOW_TOP
     other_count = sum(c for _, c in sorted_attrs[SHOW_TOP:])
     pct = 100 * other_count / n_done
-    legend_elements.append(Patch(facecolor=cmap_list[SHOW_TOP],
-                                  label=f'other ({n_other_attractors} attr, '
-                                        f'{pct:.1f}%)'))
-legend_elements.append(Patch(facecolor=cmap_list[-1], label='diverged'))
-ax.legend(handles=legend_elements, loc='center left',
-          bbox_to_anchor=(1.02, 0.5), fontsize=7, framealpha=0.95)
+    r, c = _row('other', f'{n_other_attractors} attr', '', f'{pct:.1f}',
+                cmap_list[SHOW_TOP])
+    r[0] = ' '
+    table_rows.append(r); table_colours.append(c)
+if has_diverged:
+    table_rows.append([' ', 'diverged', '', '', ''])
+    table_colours.append(cmap_list[-1])
 
-plt.tight_layout()
+# Cell fill: only the leftmost column carries the attractor colour swatch.
+cell_text    = [col_labels] + table_rows
+cell_colours = [[(1, 1, 1, 0)] * len(col_labels)]
+for c in table_colours:
+    row = [c] + [(1, 1, 1, 0)] * (len(col_labels) - 1)
+    cell_colours.append(row)
+
+tbl = ax_leg.table(cellText=cell_text,
+                    cellColours=cell_colours,
+                    cellLoc='center', loc='center',
+                    colWidths=[0.06, 0.24, 0.10, 0.10, 0.38])
+tbl.auto_set_font_size(False)
+tbl.set_fontsize(22)                # source-side; wider sidebar allows the bump
+tbl.scale(1.0, 1.75)
+
+# Left-align first column (swatch) and header; right-align numeric bodies.
+for (r, c), cell in tbl.get_celld().items():
+    cell.set_edgecolor('0.85')
+    cell.set_linewidth(0.5)
+    if r == 0:                              # header row
+        cell.get_text().set_weight('bold')
+        cell.get_text().set_horizontalalignment('center')
+        cell.set_edgecolor('0.4')
+        cell.set_linewidth(0.9)
+    elif c == 0:                            # colour swatch column
+        cell.set_edgecolor('0.4')
+        cell.set_linewidth(0.8)
+
+fig.subplots_adjust(left=0.08, right=0.98, top=0.97, bottom=0.09, wspace=0.05)
 _out = os.path.normpath(os.path.join(_here, '..', 'figures', 'basin_map_wide.pdf'))
 plt.savefig(_out, dpi=300, bbox_inches='tight')
 plt.close()

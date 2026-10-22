@@ -235,7 +235,7 @@ ax.legend(fontsize=13, loc='lower left', framealpha=0.85)
 # ═══ (e) Devil's staircase ═══ (needs a2_range + rho_vals for panel f too)
 # Staircase computation is the expensive step (~5 min at 750 alpha_2 samples).
 # Cache to code/.cache_staircase.npz and reload if params match.
-# Force recompute with `python fig1_overview.py --recompute` or env SCN_RECOMPUTE=1.
+# Force recompute with `python fig_overview.py --recompute` or env SCN_RECOMPUTE=1.
 ax = axes[4]
 _code_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "code")
 _cache_path = os.path.join(_code_dir, '.cache_staircase.npz')

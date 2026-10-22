@@ -66,6 +66,9 @@ for panel, (vary_idx, a_range, xlabel, subtitle) in enumerate(scan_configs):
 for ax in axes: ax.set_ylim(-0.02, global_max + 0.05)
 
 fig.tight_layout(w_pad=1.5)
-style.panel_labels(fig, axes)
+# Use per-axis panel_label (bold via fontweight='bold', placed above the axis
+# via set_title(loc='left', y=1.02) — no overlap with y-tick labels).
+for _ax, _l in zip(axes, 'abc'):
+    style.panel_label(_ax, _l, fontsize=20, y=1.03)
 fig.savefig('../figures/fig_3d_staircases.pdf', dpi=300, bbox_inches='tight')
 print("Saved figures/fig_3d_staircases.pdf")
