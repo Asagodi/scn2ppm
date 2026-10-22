@@ -102,24 +102,12 @@ scn2ppm/
 ├── figures/              rendered figure PDFs, and the output directory
 ├── interactive_figures/  rotatable HTML versions
 ├── docs/                 the project page served by GitHub Pages
-├── paper/                LaTeX source of the paper and supplement
-├── bib/                  all_ref.bib and catniplab.bib
 ├── posters/              conference posters
 └── LICENSE, README.md, requirements.txt
 ```
 
-Building the paper:
-
-```bash
-cd paper
-pdflatex scn_paper_main
-bibtex   scn_paper_main     # resolves against ../bib/*.bib
-pdflatex scn_paper_main     # twice more, to settle cross-references
-pdflatex scn_paper_main
-```
-
-The supplement builds the same way and picks up cross-references through
-`\externaldocument{scn_paper_main}`, so build the main paper first.
+The manuscript source is not in this repository. A link to the paper will be added
+here when it appears.
 
 ---
 

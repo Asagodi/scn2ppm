@@ -70,3 +70,8 @@ figures/*.png
 code/.cache*.npz
 code/_*.json
 
+
+# Manuscript source lives in the Overleaf project, not here. The copy that used to
+# sit in paper/ had drifted badly from it and was still anonymised.
+paper/
+bib/
