@@ -76,6 +76,7 @@ PAPER_SEGMENTS  = 50
 PAPER_SEG_STEPS = 1000
 
 ATTR_ITERATES   = 50_000
+ATTR_PLOT_MAX   = 4000   # points drawn per bound (vector-PDF size guard)
 SENS_N_PERT     = 400        # more pairs, each anchored at a different point
 SENS_EPS        = 1e-12      # along the converged chaotic orbit
 SENS_TRANSIENT  = 10_000
@@ -401,8 +402,11 @@ def strange_attractor(sys_dict, n_iterates=ATTR_ITERATES,
     bis = bis[:n_actual]
     counts = np.bincount(bis, minlength=sys_dict['K'])
     most_visited = int(np.argmax(counts))
-    mask = bis == most_visited
-    return xis[mask], most_visited, counts
+    # Return every visited point together with the bound it landed on: the
+    # chaotic attractor lives on the UNION of all bounds the orbit visits,
+    # so panel (c) needs all of them. Panel (d)'s tangent chart is
+    # inherently single-bound and masks to `most_visited` itself.
+    return xis, bis, most_visited, counts
 
 
 def spike_sequence(sys_dict, n_steps=300,
@@ -433,81 +437,28 @@ def spike_sequence(sys_dict, n_steps=300,
 # ============================================================================
 # Main
 # ============================================================================
-def main():
-    sys_paper = build_sys(D_CHAOS, ALPHAS_CHAOS)
+def make_figure(sys_paper, min_cos, lam_max, paper_min_cos, paper_lam_max,
+                dists, attr_xi, attr_bis, attr_bound, raster_seq):
+    """Build the complete 5-panel chaos figure.
 
-    if os.path.exists(CACHE_PATH):
-        print(f'Loading cache: {CACHE_PATH}')
-        with np.load(CACHE_PATH) as z:
-            min_cos       = z['min_cos']
-            lam_max       = z['lam_max']
-            paper_min_cos = float(z['paper_min_cos'])
-            paper_lam_max = float(z['paper_lam_max'])
-            paper_lam_2   = float(z['paper_lam_2'])
-            attr_xi       = z['attr_xi']
-            attr_bound    = int(z['attr_bound'])
-            attr_counts   = z['attr_counts']
-    else:
-        print('No cache found. Computing heavy quantities...')
-
-        print(f'Phase diagram over {N_PHASE_SAMPLES} random configs '
-              f'(paper spec: 800), sampler={SAMPLER}...')
-        min_cos, lam_max, _ = phase_diagram(sampler=SAMPLER)
-
-        print('Lyapunov spectrum for paper chaotic config '
-              '(50 segments x 1000 steps QR)...')
-        res = lyapunov_qr(sys_paper, n_transient=PAPER_TRANSIENT,
-                          n_record=PAPER_SEG_STEPS,
-                          n_segments=PAPER_SEGMENTS, seed=7)
-        assert res is not None, 'paper-config Lyapunov failed'
-        lyaps_paper, _, _ = res
-        paper_lam_max = float(lyaps_paper[0])
-        paper_lam_2   = float(lyaps_paper[1]) if len(lyaps_paper) > 1 else np.nan
-        cos_mat = D_CHAOS @ D_CHAOS.T
-        paper_min_cos = float(cos_mat[np.triu_indices(4, k=1)].min())
-        print(f'  lyapunov spectrum = {lyaps_paper}')
-        print(f'  lambda_1 = {paper_lam_max:.3f} nats/step, '
-              f'lambda_2 = {paper_lam_2:.3f} nats/step')
-        print(f'  min pairwise cos psi = {paper_min_cos:.3f}')
-
-        print('Strange attractor iterates...')
-        attr_xi, attr_bound, attr_counts = strange_attractor(sys_paper)
-        print(f'  most-visited bound: B_{attr_bound}, '
-              f'{attr_counts[attr_bound]} of {int(attr_counts.sum())} points')
-        print(f'  full counts = {attr_counts.tolist()}')
-
-        np.savez(CACHE_PATH,
-                 min_cos=min_cos, lam_max=lam_max,
-                 paper_min_cos=paper_min_cos, paper_lam_max=paper_lam_max,
-                 paper_lam_2=paper_lam_2,
-                 attr_xi=attr_xi, attr_bound=attr_bound,
-                 attr_counts=attr_counts)
-        print(f'Cached to {CACHE_PATH}')
-
-    # Sensitivity is cheap (~1s), always recompute
-    print('Sensitivity to initial conditions...')
-    dists = sensitivity(sys_paper)
-
-    # Spike raster: 300 successive spikes from the post-transient state
-    print('Spike raster for panel (d)...')
-    raster_seq = spike_sequence(sys_paper, n_steps=300)
-
-    # ========================================================================
-    # Figure: 1x3, wider-than-tall
-    # ========================================================================
-    # Layout: three panels (a),(b),(c) on top row, single wide flat raster
-    # (d) spanning all three column widths on the bottom row.
-    fig = plt.figure(figsize=(17, 7.6))
-    gs = fig.add_gridspec(2, 3, height_ratios=[3.0, 1.0],
-                          hspace=0.42, wspace=0.28)
-    ax_a = fig.add_subplot(gs[0, 0])
-    ax_b = fig.add_subplot(gs[0, 1])
-    ax_c = fig.add_subplot(gs[0, 2])
-    ax_d = fig.add_subplot(gs[1, :])
-
+    Every panel is created here from one gridspec, and all five panel labels
+    are applied by a single loop at the end, anchored to the gridspec cell
+    boxes, so subtitle font, size, and vertical alignment are identical by
+    construction (the 3D axes' internal padding no longer shifts its label).
+    """
     LABEL_FS = 19
     TICK_FS  = 15
     LEG_FS   = 14
+    PANEL_FS = 27
+
+    fig = plt.figure(figsize=(21, 7.6))
+    gs = fig.add_gridspec(2, 4, height_ratios=[3.0, 1.0],
+                          hspace=0.55, wspace=0.30)
+    ax_a = fig.add_subplot(gs[0, 0])
+    ax_b = fig.add_subplot(gs[0, 1])
+    ax_c = fig.add_subplot(gs[0, 2], projection='3d')   # 3D lifted view
+    ax_d = fig.add_subplot(gs[0, 3])                    # 2D tangent view
+    ax_e = fig.add_subplot(gs[1, :])                    # spike raster
 
     # ---- Panel (a): phase diagram -----------------------------------------
     finite = np.isfinite(lam_max) & np.isfinite(min_cos)
@@ -533,7 +484,7 @@ def main():
     ax_a.scatter([paper_min_cos], [paper_lam_max],
                  marker='s', s=220, facecolors='none',
                  edgecolors=style.COLORS['accent'], linewidths=2.0,
-                 zorder=5, label=r'panel (b),(c) case')
+                 zorder=5, label=r'panels (b)-(e) case')
 
     ax_a.set_xlabel(r'$\min_{i<j}\ \cos\psi_{ij}$', fontsize=LABEL_FS)
     ax_a.set_ylabel(r'$\lambda_{\max}$ (nats/step)', fontsize=LABEL_FS)
@@ -541,7 +492,6 @@ def main():
     ax_a.legend(loc='lower right', bbox_to_anchor=(0.99, 0.01),
                 fontsize=LEG_FS, framealpha=0.92,
                 borderaxespad=0.0)
-    style.panel_label(ax_a, 'a', subtitle='Regime survey', fontsize=27, y=1.02)
 
     # ---- Panel (b): sensitivity to IC -------------------------------------
     t = np.arange(dists.shape[1])
@@ -566,37 +516,200 @@ def main():
     ax_b.set_ylabel(r'$\|y_t^{\mathrm{ref}} - y_t^{\mathrm{pert}}\|$', fontsize=LABEL_FS)
     ax_b.tick_params(labelsize=TICK_FS)
     ax_b.legend(loc='lower right', fontsize=LEG_FS)
-    style.panel_label(ax_b, 'b', subtitle='IC sensitivity', fontsize=27, y=1.02)
 
-    # ---- Panel (c): strange attractor cross-section -----------------------
-    ax_c.scatter(attr_xi[:, 0], attr_xi[:, 1],
-                 s=0.7, c=style.COLORS['accent'],
-                 alpha=0.45, linewidths=0, marker='o', rasterized=True)
-    ax_c.set_xlabel(r'$\xi_1$', fontsize=LABEL_FS)
-    ax_c.set_ylabel(r'$\xi_2$', fontsize=LABEL_FS)
-    ax_c.tick_params(labelsize=TICK_FS)
-    ax_c.set_aspect('equal', adjustable='datalim')
-    style.panel_label(ax_c, 'c', subtitle='Strange attractor', fontsize=27, y=1.02)
+    # ---- Panel (c): strange attractor in full 3D, across ALL bounds -------
+    # The chaotic orbit visits every bound, so the attractor is the union of
+    # its traces on all K bound planes. For each bound b, lift that bound's
+    # tangent points back to R^3 via y = alpha_b D_b + E_b xi, and draw the
+    # plane itself as a translucent quadrilateral in the neuron's color.
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    _K = sys_paper['K']
+    _rng_c = np.random.default_rng(0)
+    _ext_pts = []      # everything that must fit in the 3D box
+    for _b in range(_K):
+        _sel = (attr_bis == _b)
+        if not np.any(_sel):
+            continue
+        _xi_b   = attr_xi[_sel]
+        _DS_b   = sys_paper['DS'][_b]
+        _ES_b   = sys_paper['ES'][_b]
+        _foot   = sys_paper['alphas'][_b] * _DS_b
+        _pts3d  = _foot[None, :] + _xi_b @ _ES_b.T
 
-    # ---- Panel (d): spike raster --------------------------------------------
+        # Plane patch spanning this bound's trace plus a small margin.
+        _lo = _xi_b.min(axis=0) - 0.15 * (np.ptp(_xi_b, axis=0) + 1e-9)
+        _hi = _xi_b.max(axis=0) + 0.15 * (np.ptp(_xi_b, axis=0) + 1e-9)
+        _corners_xi = np.array([[_lo[0], _lo[1]], [_hi[0], _lo[1]],
+                                [_hi[0], _hi[1]], [_lo[0], _hi[1]]])
+        _corners = _foot[None, :] + _corners_xi @ _ES_b.T
+        ax_c.add_collection3d(Poly3DCollection(
+            [_corners.tolist()], alpha=0.08,
+            facecolor=style.NEURON_COLORS[_b],
+            edgecolor=style.NEURON_COLORS[_b], linewidth=0.9))
+
+        # Subsample for a vector-friendly file size, then plot in the
+        # neuron's color so (c) keys to the raster in (e).
+        if len(_pts3d) > ATTR_PLOT_MAX:
+            _idx = _rng_c.choice(len(_pts3d), ATTR_PLOT_MAX, replace=False)
+            _pts3d = _pts3d[_idx]
+        ax_c.scatter(_pts3d[:, 0], _pts3d[:, 1], _pts3d[:, 2],
+                     s=2.0, c=style.NEURON_COLORS[_b], alpha=0.55,
+                     linewidths=0, depthshade=False, marker='s',
+                     label=rf'$\mathcal{{B}}_{_b+1}$')
+        _ext_pts.append(_pts3d)
+        _ext_pts.append(_corners)
+
+    # Center the 3D box on the union of all bound traces, with equal
+    # half-ranges so the attractor sits mid-panel rather than in a corner.
+    _ext = np.vstack(_ext_pts)
+    _mid = 0.5 * (_ext.min(axis=0) + _ext.max(axis=0))
+    _half = 0.55 * float((_ext.max(axis=0) - _ext.min(axis=0)).max())
+    ax_c.set_xlim3d(_mid[0] - _half, _mid[0] + _half)
+    ax_c.set_ylim3d(_mid[1] - _half, _mid[1] + _half)
+    ax_c.set_zlim3d(_mid[2] - _half, _mid[2] + _half)
+
+    ax_c.set_xlabel(r'$y_1$', fontsize=LABEL_FS, labelpad=2)
+    ax_c.set_ylabel(r'$y_2$', fontsize=LABEL_FS, labelpad=2)
+    ax_c.set_zlabel(r'$y_3$', fontsize=LABEL_FS, labelpad=2)
+    ax_c.tick_params(labelsize=max(TICK_FS - 3, 10))
+    ax_c.view_init(elev=22, azim=45)
+    ax_c.legend(loc='upper center', bbox_to_anchor=(0.5, 1.0), ncol=_K,
+                fontsize=LEG_FS - 3, framealpha=0.85, markerscale=3.5,
+                handletextpad=0.2, columnspacing=0.7, borderaxespad=0.0)
+    try:
+        ax_c.set_box_aspect((1, 1, 1))
+    except Exception:
+        pass
+
+    # ---- Panel (d): strange attractor in the tangent chart ----------------
+    # A tangent chart is defined on ONE bound, so this panel shows the
+    # most-visited bound's trace: the (c) cloud flattened into its own frame.
+    _xi_d = attr_xi[attr_bis == int(attr_bound)]
+    if len(_xi_d) > ATTR_PLOT_MAX:
+        _xi_d = _xi_d[np.random.default_rng(0).choice(
+            len(_xi_d), ATTR_PLOT_MAX, replace=False)]
+    ax_d.scatter(_xi_d[:, 0], _xi_d[:, 1],
+                 s=3.0, c=style.NEURON_COLORS[int(attr_bound)],
+                 alpha=0.7, linewidths=0, marker='o')
+    ax_d.set_xlabel(r'$\xi_1$', fontsize=LABEL_FS)
+    ax_d.set_ylabel(r'$\xi_2$', fontsize=LABEL_FS)
+    ax_d.tick_params(labelsize=TICK_FS)
+    ax_d.set_aspect('equal', adjustable='box')
+
+    # ---- Panel (e): spike raster ------------------------------------------
     K = sys_paper['K']
     neuron_colors = style.NEURON_COLORS[:K]
     xs = np.arange(len(raster_seq))
     for k in range(K):
         m = raster_seq == k
-        ax_d.vlines(xs[m], k - 0.42, k + 0.42,
-                     color=neuron_colors[k], linewidth=1.2)
-    ax_d.set_yticks(range(K))
-    ax_d.set_yticklabels([f'{k+1}' for k in range(K)])
-    ax_d.set_ylim(-0.6, K - 0.4)
-    ax_d.set_xlabel(r'spike index $n$', fontsize=LABEL_FS)
-    ax_d.set_ylabel('neuron', fontsize=LABEL_FS)
-    ax_d.set_xlim(0, len(raster_seq))
-    ax_d.tick_params(labelsize=TICK_FS)
-    ax_d.invert_yaxis()
-    style.panel_label(ax_d, 'd', subtitle='Chaotic spike raster', fontsize=27, y=1.02)
+        ax_e.vlines(xs[m], k - 0.42, k + 0.42,
+                    color=neuron_colors[k], linewidth=1.2)
+    ax_e.set_yticks(range(K))
+    ax_e.set_yticklabels([f'{k+1}' for k in range(K)])
+    ax_e.set_ylim(-0.6, K - 0.4)
+    ax_e.set_xlabel(r'spike index $n$', fontsize=LABEL_FS)
+    ax_e.set_ylabel('neuron', fontsize=LABEL_FS)
+    ax_e.set_xlim(0, len(raster_seq))
+    ax_e.tick_params(labelsize=TICK_FS)
+    ax_e.invert_yaxis()
 
-    # Gridspec already sets hspace/wspace, so skip tight_layout.
+    # ---- Unified panel labels ---------------------------------------------
+    # One loop, one font spec, positions anchored to the gridspec CELL boxes
+    # (not the axes boxes), so the 3D panel's internal padding cannot shift
+    # its label: the four top-row labels share exactly the same y.
+    for ax, letter, sub in ((ax_a, 'a', 'Regime survey'),
+                            (ax_b, 'b', 'IC sensitivity'),
+                            (ax_c, 'c', 'Strange attractor'),
+                            (ax_d, 'd', f'Tangent chart on B{int(attr_bound)+1}'),
+                            (ax_e, 'e', 'Chaotic spike raster')):
+        cell = ax.get_subplotspec().get_position(fig)
+        fig.text(cell.x0, cell.y1 + 0.015, f'({letter}) {sub}',
+                 fontsize=PANEL_FS, fontweight='bold',
+                 ha='left', va='bottom')
+    return fig
+
+
+def main():
+    sys_paper = build_sys(D_CHAOS, ALPHAS_CHAOS)
+
+    if os.path.exists(CACHE_PATH):
+        print(f'Loading cache: {CACHE_PATH}')
+        with np.load(CACHE_PATH) as z:
+            min_cos       = z['min_cos']
+            lam_max       = z['lam_max']
+            paper_min_cos = float(z['paper_min_cos'])
+            paper_lam_max = float(z['paper_lam_max'])
+            paper_lam_2   = float(z['paper_lam_2'])
+            attr_bound    = int(z['attr_bound'])
+            attr_counts   = z['attr_counts']
+            if 'attr_bis' in z:
+                attr_xi  = z['attr_xi']
+                attr_bis = z['attr_bis']
+            else:
+                # Legacy cache holds only the most-visited bound. Recompute
+                # the attractor (seconds) to recover the other bounds; the
+                # expensive phase-diagram arrays above are reused as-is.
+                print('  legacy cache: recomputing attractor for all bounds...')
+                attr_xi, attr_bis, attr_bound, attr_counts = \
+                    strange_attractor(sys_paper)
+                np.savez(CACHE_PATH,
+                         min_cos=min_cos, lam_max=lam_max,
+                         paper_min_cos=paper_min_cos,
+                         paper_lam_max=paper_lam_max,
+                         paper_lam_2=paper_lam_2,
+                         attr_xi=attr_xi, attr_bis=attr_bis,
+                         attr_bound=attr_bound, attr_counts=attr_counts)
+    else:
+        print('No cache found. Computing heavy quantities...')
+
+        print(f'Phase diagram over {N_PHASE_SAMPLES} random configs '
+              f'(paper spec: 800), sampler={SAMPLER}...')
+        min_cos, lam_max, _ = phase_diagram(sampler=SAMPLER)
+
+        print('Lyapunov spectrum for paper chaotic config '
+              '(50 segments x 1000 steps QR)...')
+        res = lyapunov_qr(sys_paper, n_transient=PAPER_TRANSIENT,
+                          n_record=PAPER_SEG_STEPS,
+                          n_segments=PAPER_SEGMENTS, seed=7)
+        assert res is not None, 'paper-config Lyapunov failed'
+        lyaps_paper, _, _ = res
+        paper_lam_max = float(lyaps_paper[0])
+        paper_lam_2   = float(lyaps_paper[1]) if len(lyaps_paper) > 1 else np.nan
+        cos_mat = D_CHAOS @ D_CHAOS.T
+        paper_min_cos = float(cos_mat[np.triu_indices(4, k=1)].min())
+        print(f'  lyapunov spectrum = {lyaps_paper}')
+        print(f'  lambda_1 = {paper_lam_max:.3f} nats/step, '
+              f'lambda_2 = {paper_lam_2:.3f} nats/step')
+        print(f'  min pairwise cos psi = {paper_min_cos:.3f}')
+
+        print('Strange attractor iterates...')
+        attr_xi, attr_bis, attr_bound, attr_counts = strange_attractor(sys_paper)
+        print(f'  most-visited bound: B_{attr_bound}, '
+              f'{attr_counts[attr_bound]} of {int(attr_counts.sum())} points')
+        print(f'  full counts = {attr_counts.tolist()}')
+
+        np.savez(CACHE_PATH,
+                 min_cos=min_cos, lam_max=lam_max,
+                 paper_min_cos=paper_min_cos, paper_lam_max=paper_lam_max,
+                 paper_lam_2=paper_lam_2,
+                 attr_xi=attr_xi, attr_bis=attr_bis,
+                 attr_bound=attr_bound, attr_counts=attr_counts)
+        print(f'Cached to {CACHE_PATH}')
+
+    # Sensitivity is cheap (~1s), always recompute
+    print('Sensitivity to initial conditions...')
+    dists = sensitivity(sys_paper)
+
+    # Spike raster: 300 successive spikes from the post-transient state
+    print('Spike raster for panel (e)...')
+    raster_seq = spike_sequence(sys_paper, n_steps=300)
+
+    # ------------------------------------------------------------------
+    # All plotting lives in make_figure() so panel styling stays uniform.
+    # ------------------------------------------------------------------
+    fig = make_figure(sys_paper, min_cos, lam_max, paper_min_cos,
+                      paper_lam_max, dists, attr_xi, attr_bis, attr_bound,
+                      raster_seq)
     os.makedirs(OUT_DIR, exist_ok=True)
     fig.savefig(OUT_PATH)
     plt.close(fig)
