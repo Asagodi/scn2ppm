@@ -78,15 +78,16 @@ for panel, (word, title) in enumerate(WORDS):
         ax.plot(best_a1, best_a2, marker='o', color='k', ms=10,
                 markeredgecolor='white', markeredgewidth=1.0, zorder=10)
 
-    ax.set_xlabel(r'$\alpha_1$', fontsize=19)
+    ax.set_xlabel(r'$\alpha_1$', fontsize=28)
     if panel == 0:
-        ax.set_ylabel(r'$\alpha_2$', fontsize=19)
+        ax.set_ylabel(r'$\alpha_2$', fontsize=28)
     ax.set_xticks([0, 1, 2])
     ax.set_yticks([0, 1, 2])
-    ax.tick_params(labelsize=15)
-    # fontsize=38: figure is 783pt wide, rendered at ~0.30*L_col on the
-    # poster (nested in Box 6's 0.45 column at 0.66 minipage). 38/783 * 0.30
-    # ≈ 1.4% of poster width, matching Box 1's \Large\bfseries subtitle.
+    ax.tick_params(labelsize=22)
+    # fontsize=38 is the POSTER-scale label (matches Box 1's \Large\bfseries
+    # subtitle at Box 6's ~0.30*L_col rendered width). For the PAPER we save
+    # a second variant below with fontsize=18 to match fig_inverse_scaling
+    # (Fig 4 panel c) and fig_chaos.py (Fig 3 panels a,b,c at 27).
     style.panel_label(ax, chr(ord('a') + panel),
                        subtitle=PANEL_SUBTITLES[panel], fontsize=38, y=1.02)
 
@@ -101,17 +102,32 @@ cbar.set_ticks(ticks)
 cbar.set_ticklabels([f'{int(round(vmin*100))}',
                      '0',
                      f'{int(round(vmax*100))}'])
-cbar.ax.tick_params(labelsize=15)
+cbar.ax.tick_params(labelsize=22)
 # "m" label above the colorbar; the multiplier sits just above "m".
 cax.text(0.5, 1.15, r'$\times 10^{-2}$',
           transform=cax.transAxes, ha='center', va='bottom', fontsize=15)
-cax.set_title(r'$m$', fontsize=19, pad=28)
+cax.set_title(r'$m$', fontsize=28, pad=28)
 
 # Same top/bottom fractions as fig_inverse_scaling — panel labels then land
 # at the same axes-fraction across both PDFs.
 fig.subplots_adjust(left=0.07, right=0.90, top=0.86, bottom=0.16)
 
 _here = os.path.dirname(os.path.abspath(__file__))
+
+# POSTER version (fontsize=38 panel labels, already set on the axes)
 _out = os.path.normpath(os.path.join(_here, '..', 'figures', 'margin_landscape.pdf'))
 fig.savefig(_out, dpi=300, bbox_inches='tight', pad_inches=0.02)
 print(f'Saved {_out}')
+
+# PAPER version: same axes, panel labels shrunk to 18pt (matches
+# fig_inverse_scaling and fig_chaos in the paper).
+for panel, ax in enumerate(axes):
+    # Overwrite the poster-scale title with the paper-scale one.
+    # fontsize=28 because this figure is included at 0.65*textwidth in the
+    # paper (Fig 4 two-minipage layout), so effective on-page fontsize
+    # after 0.39x downscale is ~11pt — legible next to 12pt body text.
+    style.panel_label(ax, chr(ord('a') + panel),
+                       subtitle=PANEL_SUBTITLES[panel], fontsize=28, y=1.02)
+_out_paper = os.path.normpath(os.path.join(_here, '..', 'figures', 'margin_landscape_paper.pdf'))
+fig.savefig(_out_paper, dpi=300, bbox_inches='tight', pad_inches=0.02)
+print(f'Saved {_out_paper}')

@@ -38,15 +38,15 @@ ax.scatter(K_fail, [y_fail] * len(K_fail),
            marker='s', color=style.COLORS['red'], s=90,
            label=r'infeasible ($m\leq 0$)')
 
-ax.set_xlabel('Number of neurons $K$', fontsize=19)
-ax.set_ylabel(r'$m^*$', rotation=0, labelpad=20, fontsize=21)
+ax.set_xlabel('Number of neurons $K$', fontsize=28)
+ax.set_ylabel(r'$m^*$', rotation=0, labelpad=20, fontsize=30)
 ax.set_xticks([2, 3, 4, 5, 6, 7, 8])
 ax.set_xlim(1.5, 8.5)
 ax.set_ylim(2e-4, 0.5)
-ax.tick_params(labelsize=15)
-ax.legend(fontsize=14, loc='lower left', framealpha=0.85)
+ax.tick_params(labelsize=22)
+ax.legend(fontsize=20, loc='lower left', framealpha=0.85)
 # Panel label (a,b are margin-landscape panels; this is panel c)
-style.panel_label(ax, 'c')
+style.panel_label(ax, 'c', subtitle='Solver scaling', fontsize=28, y=1.02)
 
 # Exactly the same top/bottom fractions as fig_margin_landscape so the panel
 # labels sit at the same fig-height fraction after bbox_inches='tight'.

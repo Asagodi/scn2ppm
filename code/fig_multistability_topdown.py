@@ -14,6 +14,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 import matplotlib.pyplot as plt
 from scn import step
+import style
+style.setup()   # CMU font + shared rcParams
 
 # ============ Muted / paper-friendly palette ============
 # Neurons: three deep, saturated colors that don't clash with the orbit
@@ -147,14 +149,20 @@ def bound_line_endpoints(i, z, half_length=0.6):
     return center - half_length * tangent, center + half_length * tangent
 
 # ============ Figure =========================
+# The paper includes this at 0.45\textwidth, so the saved 8.4in canvas is scaled by about
+# 0.35 on the page. Everything below is sized for that: the numbers are what the body text
+# is set at (12pt), so each of these lands between 9 and 11pt once reduced.
+FS_BOUND, FS_NUM, FS_YBAR, FS_LEGEND, FS_TITLE = 32, 26, 32, 27, 30
+MS_DOT, MS_LEGEND = 36, 28          # the dot has to hold a FS_NUM digit
+
 LIM = 0.5
-fig, ax = plt.subplots(figsize=(9, 9))
+fig, ax = plt.subplots(figsize=(13.4, 9))
 
 # Bound slices (dashed lines through the spike points, colored by neuron)
 for i in range(3):
     color = NEURON_COL[i+1]  # neuron index displayed as 1-based
     p1, p2 = bound_line_endpoints(i, z_spike, half_length=LIM*1.6)
-    ax.plot([p1[0], p2[0]], [p1[1], p2[1]], ls=(0, (6, 4)), color=color, lw=2.2,
+    ax.plot([p1[0], p2[0]], [p1[1], p2[1]], ls=(0, (6, 4)), color=color, lw=3.2,
             alpha=0.85, zorder=2)
     # Label at midpoint between the two spike points on this bound, offset outward.
     p_A = proj(ptsA_3d[i]); p_B = proj(ptsB_3d[i])
@@ -162,8 +170,8 @@ for i in range(3):
     n_hat = proj(DS[i]) / np.linalg.norm(proj(DS[i]))
     lab_pt = spike_mid - n_hat * 0.06
     ax.text(lab_pt[0], lab_pt[1], rf'$\mathcal{{B}}_{i+1}$', color=color,
-            fontsize=22, ha='center', va='center', style='italic', weight='bold',
-            bbox=dict(boxstyle='round,pad=0.18', fc='white', ec=color, lw=1.5, alpha=0.95))
+            fontsize=FS_BOUND, ha='center', va='center', style='italic', weight='bold',
+            bbox=dict(boxstyle='round,pad=0.18', fc='white', ec=color, lw=1.8, alpha=0.95))
 
 # Reflection axis (subtle)
 ax.axhline(0, color='#cccccc', ls=':', lw=0.8, alpha=0.5, zorder=1)
@@ -174,13 +182,13 @@ for orb_segs, col_orb in [(segsA, ORBIT_COL['A']), (segsB, ORBIT_COL['B'])]:
         p_pre = proj(y_pre); p_post = proj(y_post); p_next = proj(y_next)
         # Spike arrow (neuron-colored)
         ax.annotate('', xy=p_post, xytext=p_pre,
-                    arrowprops=dict(arrowstyle='-|>', color=NEURON_COL[bi+1], lw=2.8,
-                                    mutation_scale=22, alpha=1.0),
+                    arrowprops=dict(arrowstyle='-|>', color=NEURON_COL[bi+1], lw=4.0,
+                                    mutation_scale=30, alpha=1.0),
                     zorder=6)
         # Decay arrow (single annotate: line + terminal arrowhead in one)
         ax.annotate('', xy=p_next, xytext=p_post,
-                    arrowprops=dict(arrowstyle='-|>', color=DECAY_COL, lw=1.7,
-                                    mutation_scale=20, alpha=0.85),
+                    arrowprops=dict(arrowstyle='-|>', color=DECAY_COL, lw=2.5,
+                                    mutation_scale=28, alpha=0.85),
                     zorder=5)
 
 # Spike dots with neuron labels (1-indexed).
@@ -193,36 +201,52 @@ for orb_segs, key in [(segsA, 'A'), (segsB, 'B')]:
     s = orbit_style[key]
     for y_pre, y_post, y_next, bi, bj in orb_segs:
         p_pre = proj(y_pre)
-        ax.plot(p_pre[0], p_pre[1], 'o', color=s['fc'], markersize=19,
-                mec=s['ec'], mew=1.5, zorder=10)
+        ax.plot(p_pre[0], p_pre[1], 'o', color=s['fc'], markersize=MS_DOT,
+                mec=s['ec'], mew=2.2, zorder=10)
         ax.text(p_pre[0], p_pre[1], str(bi+1), color=s['txt'],
-                ha='center', va='center', fontsize=12, weight='bold', zorder=11)
+                ha='center', va='center', fontsize=FS_NUM, weight='bold', zorder=11)
 
 # Origin marker (also = shared readout by 3-fold symmetry)
-ax.plot(0, 0, marker='+', color='#333', markersize=16, mew=2.5, zorder=15)
-ax.text(0.02, 0.02, r'$\bar{y}$', fontsize=16, ha='left', va='bottom',
+ax.plot(0, 0, marker='+', color='#333', markersize=26, mew=3.5, zorder=15)
+ax.text(0.02, 0.02, r'$\bar{y}$', fontsize=FS_YBAR, ha='left', va='bottom',
         color='#333', weight='bold')
 
 # ============ Legend (compact) ============
 from matplotlib.lines import Line2D
 legend_elems = [
     Line2D([0], [0], marker='o', color='w', mec='#111', mew=1.5,
-           mfc=ORBIT_COL['A'], markersize=17, label=r'$\sigma=(1,2,3)$', linestyle=''),
+           mfc=ORBIT_COL['A'], markersize=MS_LEGEND, label=r'$\sigma=(1,2,3)$', linestyle=''),
     Line2D([0], [0], marker='o', color='w', mec='#111', mew=1.5,
-           mfc=ORBIT_COL['B'], markersize=17, label=r'$\sigma=(1,3,2)$', linestyle=''),
-    Line2D([0], [0], color=NEURON_COL[1], lw=3, label='spike (colored by firer)'),
-    Line2D([0], [0], color=DECAY_COL, lw=2.2, label='decay toward origin'),
+           mfc=ORBIT_COL['B'], markersize=MS_LEGEND, label=r'$\sigma=(1,3,2)$', linestyle=''),
+    Line2D([0], [0], color=NEURON_COL[1], lw=4.2, label='spike (colored by firer)'),
+    Line2D([0], [0], color=DECAY_COL, lw=3.2, label='decay toward origin'),
 ]
-ax.legend(handles=legend_elems, loc='lower left', fontsize=14,
-          framealpha=0.96, edgecolor='#888')
+# Outside the axes on the right: the star fills the frame, so any inside placement lands on
+# a trajectory or a bound line.
+ax.legend(handles=legend_elems, loc='center left', bbox_to_anchor=(1.01, 0.5),
+          fontsize=FS_LEGEND, frameon=False, handletextpad=0.8, labelspacing=1.0)
 
 ax.set_aspect('equal')
-ax.set_xlim(-LIM, LIM); ax.set_ylim(-LIM, LIM)
-ax.set_xticks([]); ax.set_yticks([])
-ax.set_title(r'$K{=}N{=}3$ symmetric SCN: two chirality orbits are mirror images',
-             fontsize=17, weight='bold', pad=14)
+# Centre the view on the star's own bounding box, with the same span in x and y. The pattern
+# is three-fold symmetric, so it reaches further right than left; centring on the origin
+# instead would leave a visible empty band on the left. The origin, and with it the ybar
+# marker, therefore sits slightly off centre.
+_ink = np.array([proj(p) for _segs in (segsA, segsB)
+                 for (_pre, _post, _next, _bi, _bj) in _segs
+                 for p in (_pre, _post, _next)])
+_cx = 0.5 * (_ink[:, 0].min() + _ink[:, 0].max())
+_cy = 0.5 * (_ink[:, 1].min() + _ink[:, 1].max())
+_half = 1.06 * max(np.abs(_ink[:, 0] - _cx).max(), np.abs(_ink[:, 1] - _cy).max())
+ax.set_xlim(_cx - _half, _cx + _half)
+ax.set_ylim(_cy - _half, _cy + _half)
+print('[view] centre (%+.4f, %+.4f), half-span %.4f, equal in x and y' % (_cx, _cy, _half))
+# No title and no frame: the caption names the setting, and the axes carry no scale worth
+# reading, so the box and ticks were only furniture.
+ax.set_axis_off()
 
-plt.tight_layout()
+# Fixed axes box: tight_layout would shrink the square to make room for the legend,
+# which is the opposite of what is wanted here.
+ax.set_position([0.01, 0.02, 0.66, 0.96])
 outpath_png = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures', 'multistability_topdown.png')
 outpath_pdf = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'figures', 'multistability_topdown.pdf')
 plt.savefig(outpath_png, dpi=200, bbox_inches='tight')
