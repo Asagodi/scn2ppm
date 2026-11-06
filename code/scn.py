@@ -124,7 +124,24 @@ def make_3d_symmetric_system(alphas, spread=0.7):
 # Forward simulation
 # ═══════════════════════════════════════════════════════════════
 
-def step(xi: np.ndarray, bi: int, sys: dict):
+# What to do when a reset leaves another neuron already past its bound, i.e.
+# suprathreshold at tau = 0 with decay factor c_j > 1. Only reachable with an
+# excitatory weight (a negative decoder cosine): in the cone regime the
+# physical region is forward invariant, every c_j < 1, and the two rules
+# coincide exactly.
+#   'immediate' : it is over threshold now, so it fires now. Largest voltage
+#                 excess first, re-checking after each spike because every
+#                 spike moves the others. This is the greedy SCN rule, and
+#                 the extra spikes share the instant of the reset.
+#   'skip'      : ignore it and decay on to the next reachable bound. What
+#                 this module did before 2026-11-04; kept so the published
+#                 figures stay reproducible.
+RESET_RULE = 'immediate'
+MAX_CASCADE = 64
+
+
+def step(xi: np.ndarray, bi: int, sys: dict, rule: str = None,
+         return_spikes: bool = False):
     """One spike-then-decay step.
 
     Parameters
@@ -132,15 +149,48 @@ def step(xi: np.ndarray, bi: int, sys: dict):
     xi : tangent coordinate on bound bi
     bi : current bound index
     sys : system dict (DS, ES, alphas, K)
+    rule : 'immediate' or 'skip'; defaults to the module-level RESET_RULE
+    return_spikes : also return the neurons that fired at tau = 0 after the
+        reset, in order, before the decay
 
     Returns
     -------
     xi_next : tangent coordinate on next bound
     bj : next bound index
+    spikes : list of instantaneous spikes (only if return_spikes)
+
+    Notes
+    -----
+    Each branch stays projective. The cascade adds fixed decoder vectors, so
+    the post-cascade readout is still affine in xi, and the decay still
+    divides by an affine function of it. What grows is the number of
+    branches, not the form of any one of them.
     """
     DS, ES, al, K = sys['DS'], sys['ES'], sys['alphas'], sys['K']
+    rule = RESET_RULE if rule is None else rule
     xi = np.atleast_1d(xi).ravel()
     yp = (al[bi] + 1) * DS[bi] + (ES[bi] @ xi).ravel()
+
+    cascade = []
+    if rule == 'immediate':
+        for _ in range(MAX_CASCADE):
+            best_exc, jmax = 1e-12, -1
+            for j in range(K):
+                if al[j] <= 0:
+                    continue
+                exc = al[j] - DS[j] @ yp        # voltage above threshold
+                if exc > best_exc:
+                    best_exc, jmax = exc, j
+            if jmax < 0:
+                break
+            cascade.append(jmax)
+            yp = yp + DS[jmax]
+        else:
+            # runaway avalanche: no sub-threshold state within MAX_CASCADE
+            return (None, -1, cascade) if return_spikes else (None, -1)
+    elif rule != 'skip':
+        raise ValueError(f'unknown reset rule {rule!r}')
+
     bj, bc = -1, -1.0
     for j in range(K):
         if al[j] <= 0:
@@ -152,9 +202,9 @@ def step(xi: np.ndarray, bi: int, sys: dict):
         if 0 < c <= 1.0 + 1e-10 and c > bc:
             bc, bj = c, j
     if bj < 0:
-        return None, -1
+        return (None, -1, cascade) if return_spikes else (None, -1)
     xi_next = (ES[bj].T @ (bc * yp)).ravel()
-    return xi_next, bj
+    return (xi_next, bj, cascade) if return_spikes else (xi_next, bj)
 
 
 def simulate(sys: dict, xi0, bi0: int, n_transient: int, n_record: int):
@@ -212,7 +262,7 @@ def find_period(seq: list, min_repeats: int = 3) -> int:
 # Return map and eigenvector orbit prediction
 # ═══════════════════════════════════════════════════════════════
 
-def transition_matrix(bi: int, bj: int, sys: dict) -> np.ndarray:
+def transition_matrix(bi: int, bj: int, sys: dict, cascade=()) -> np.ndarray:
     """N×N transition matrix M_{j←i} in homogeneous coordinates.
 
     Parameters
@@ -220,23 +270,65 @@ def transition_matrix(bi: int, bj: int, sys: dict) -> np.ndarray:
     bi : source bound index
     bj : target bound index
     sys : system dict
+    cascade : neurons that fire instantaneously after the reset, in order,
+        before the decay (see `step`). Empty in the cone regime.
 
     Returns
     -------
     M : (N, N) transition matrix
+
+    Notes
+    -----
+    A cascade adds the fixed vector S = sum of the cascading decoders to the
+    post-spike readout, so the readout stays affine in xi and the step stays
+    projective; S enters only the last column. Without this argument the
+    matrix assumes a direct decay, which is wrong for any branch where the
+    reset pushed another neuron over threshold.
     """
     DS, ES, al = sys['DS'], sys['ES'], sys['alphas']
     N = sys['N']
     di, dj = DS[bi], DS[bj]
     Ei, Ej = ES[bi], ES[bj]
     ai, aj = al[bi], al[bj]
+    S = np.zeros(N)
+    for c in cascade:
+        S = S + DS[c]
 
     M = np.zeros((N, N))
     M[:N-1, :N-1] = aj * (Ej.T @ Ei)
-    M[:N-1, N-1] = aj * (ai + 1) * (Ej.T @ di)
+    M[:N-1, N-1] = aj * ((ai + 1) * (Ej.T @ di) + (Ej.T @ S)).ravel()
     M[N-1, :N-1] = (Ei.T @ dj).ravel()
-    M[N-1, N-1] = (ai + 1) * (dj @ di)
+    M[N-1, N-1] = (ai + 1) * (dj @ di) + (dj @ S)
     return M
+
+
+def step_jacobian(xi: np.ndarray, bi: int, sys: dict, rule: str = None):
+    """One step, plus the exact Jacobian of the chart map at that point.
+
+    The step is projective, so its derivative is closed form. Writing the
+    branch's transition matrix as M = [[A, b], [c^T, d]], the step is
+    xi' = (A xi + b)/(c^T xi + d), and differentiating gives
+
+        J = (A - xi' c^T) / (c^T xi + d).
+
+    This is the same object the eigenvalue ratios of Theorem 2 describe for a
+    periodic word, evaluated step by step instead of once per cycle, so a
+    Lyapunov spectrum built from it comes from the transition matrices rather
+    than from numerical differentiation.
+
+    Returns (xi_next, bj, J, cascade); (None, -1, None, cascade) on failure.
+    """
+    xi = np.atleast_1d(xi).ravel()
+    xn, bj, casc = step(xi, bi, sys, rule=rule, return_spikes=True)
+    if xn is None:
+        return None, -1, None, casc
+    N = sys['N']
+    M = transition_matrix(bi, bj, sys, cascade=casc)
+    A, c, d = M[:N-1, :N-1], M[N-1, :N-1], M[N-1, N-1]
+    w = float(c @ xi + d)
+    if abs(w) < 1e-300:
+        return None, -1, None, casc
+    return xn, bj, (A - np.outer(xn, c)) / w, casc
 
 
 def return_map(word: list, sys: dict) -> np.ndarray:
@@ -528,3 +620,141 @@ def get_spike_times(s, dt=1e-4):
         tmp = dt*np.where(s[n, :] == 1)[0]
         spk_times.append(list(tmp))
     return spk_times
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Convention B: encoder and decoder as separate vectors
+#
+# Everything above treats one vector per neuron as both the bound normal and the
+# post-spike jump, which is the autoencoder. Convention B separates the two:
+#
+#     bound      B_i = {y : ENC_i . y = alpha_i}      normal is the ENCODER
+#     spike      y -> y + DS_i                        jump is the DECODER
+#     weights    W_ij = -ENC_i . DS_j
+#
+# The autoencoder is the case ENC = DS, and to_convention_B() builds it from an
+# existing system, so results obtained above are reproduced exactly.
+#
+# These are additive. Nothing above calls them, and no existing figure changes.
+# They become the primary path once the text is written in the general case; the
+# figure scripts that currently carry private copies of this algebra can then
+# import from here instead.
+#
+# NOTE ON KEY NAMES. In the dicts built above, 'ES' holds the TANGENT FRAMES,
+# not encoders. A Convention B system therefore uses different keys, so the two
+# cannot be passed to each other's functions by accident:
+#
+#     Convention A (above)   DS = decoders,  ES = tangent frames
+#     Convention B (here)    DS = decoders,  ENC = encoders,  U = tangent frames
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def make_system_B(encoders, decoders, alphas):
+    """Construct a Convention B system from encoders, decoders and drives.
+
+    Parameters
+    ----------
+    encoders : list of K unit vectors in R^N, the spike-bound normals
+    decoders : list of K vectors in R^N, the post-spike jumps
+    alphas   : list of K suprathreshold drives
+
+    Returns
+    -------
+    dict with keys: DS, ENC, U, alphas, K, N, convention
+    """
+    enc = [np.asarray(e, dtype=float).ravel() for e in encoders]
+    dec = [np.asarray(d, dtype=float).ravel() for d in decoders]
+    if len(enc) != len(dec) or len(enc) != len(alphas):
+        raise ValueError('encoders, decoders and alphas must have equal length')
+    return {
+        'DS': dec, 'ENC': enc, 'U': [tangent_frame(e) for e in enc],
+        'alphas': list(alphas), 'K': len(enc), 'N': enc[0].size,
+        'convention': 'B',
+    }
+
+
+def to_convention_B(sys: dict) -> dict:
+    """Re-express an autoencoder system in Convention B, with ENC = DS.
+
+    The resulting system is dynamically identical, which is what makes the two
+    paths comparable: see the equivalence check in the test block below.
+    """
+    if sys.get('convention') == 'B':
+        return sys
+    return make_system_B(sys['DS'], sys['DS'], sys['alphas'])
+
+
+def transition_matrix_B(bi: int, bj: int, sys: dict) -> np.ndarray:
+    """N x N transition matrix M_{j<-i} in homogeneous coordinates, Convention B.
+
+    The post-spike readout is y+ = alpha_i ENC_i + DS_i + U_i xi, which is affine
+    in xi, so the step stays a ratio of affine maps and the matrix form survives.
+    Relative to the autoencoder, the single quantity cos psi_ji splits into
+    ENC_j . ENC_i and ENC_j . DS_i, and U_j^T d_i splits into U_j^T ENC_i and
+    U_j^T DS_i. Setting ENC = DS collapses each pair and recovers the form above.
+    """
+    DS, ENC, U, al = sys['DS'], sys['ENC'], sys['U'], sys['alphas']
+    N = sys['N']
+    ai, aj = al[bi], al[bj]
+    Ui, Uj = U[bi], U[bj]
+
+    M = np.zeros((N, N))
+    M[:N-1, :N-1] = aj * (Uj.T @ Ui)
+    M[:N-1, N-1] = aj * (ai * (Uj.T @ ENC[bi]) + (Uj.T @ DS[bi])).ravel()
+    M[N-1, :N-1] = (Ui.T @ ENC[bj]).ravel()
+    M[N-1, N-1] = ai * (ENC[bj] @ ENC[bi]) + (ENC[bj] @ DS[bi])
+    return M
+
+
+def step_B(xi, bi: int, sys: dict):
+    """One spike-then-decay step, Convention B. Mirrors step() above."""
+    DS, ENC, U, al, K = sys['DS'], sys['ENC'], sys['U'], sys['alphas'], sys['K']
+    xi = np.atleast_1d(xi).ravel()
+    yp = al[bi] * ENC[bi] + DS[bi] + (U[bi] @ xi).ravel()
+    bj, bc = -1, -1.0
+    for j in range(K):
+        if al[j] <= 0:
+            continue
+        dn = ENC[j] @ yp
+        if dn < 1e-12:
+            continue
+        c = al[j] / dn
+        if 0 < c <= 1.0 + 1e-10 and c > bc:
+            bc, bj = c, j
+    if bj < 0:
+        return None, -1
+    return (U[bj].T @ (bc * yp)).ravel(), bj
+
+
+def return_map_B(word: list, sys: dict) -> np.ndarray:
+    """Compose Convention B transition matrices around a periodic word."""
+    L = len(word)
+    M = np.eye(sys['N'])
+    for k in range(L):
+        M = transition_matrix_B(word[k], word[(k + 1) % L], sys) @ M
+    return M
+
+
+def eigenvector_orbit_B(word: list, sys: dict):
+    """Orbit positions and eigenvalues for a word, Convention B.
+
+    Returns (orbit, eigenvalues, xi_star) with the same shape of result as
+    eigenvector_orbit() above: orbit is a list of (y, bound index, xi).
+    """
+    M = return_map_B(word, sys)
+    vals, vecs = np.linalg.eig(M)
+    order = np.argsort(-np.abs(vals))
+    vals, vecs = vals[order], vecs[:, order]
+    v = np.real(vecs[:, 0])
+    if abs(v[-1]) < 1e-14:
+        raise ValueError('dominant eigenvector is at infinity; no orbit point')
+    xi_star = v[:-1] / v[-1]
+
+    orbit, xi, bi = [], xi_star, word[0]
+    for k in range(len(word)):
+        y = sys['alphas'][bi] * sys['ENC'][bi] + (sys['U'][bi] @ xi).ravel()
+        orbit.append((y, bi, xi))
+        xi, bi = step_B(xi, bi, sys)
+        if bi < 0:
+            raise ValueError('orbit left the admissible region at step %d' % k)
+    return orbit, vals, xi_star

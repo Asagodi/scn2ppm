@@ -16,7 +16,11 @@ Panels (new order after style pass):
       bound in tangent coordinates (xi_1, xi_2).
 
 Numerics:
-  - Per-step Jacobian by central finite differences on the current branch.
+  - Per-step Jacobian in closed form from the branch's transition matrix:
+    with M = [[A, b], [c^T, d]], J = (A - xi' c^T)/(c^T xi + d). So the
+    spectrum comes from the same matrices as the periodic-orbit result,
+    not from numerical differentiation. jacobian_fd is retained only as the
+    cross-check that validated this.
   - Lyapunov spectrum by QR accumulation over 50 segments of 1000 steps
     for the paper configuration; a shorter run per sample for the phase
     diagram (1500 transient + 3000 record).
@@ -37,6 +41,16 @@ if _HERE not in sys.path:
 
 import scn
 import style
+
+# This figure was produced before scn.py's reset rule was corrected on
+# 2026-11-04. Pin the old rule so the script keeps reproducing the published
+# panels instead of silently changing under the fix. Under the corrected
+# 'immediate' rule the reference configuration below is NOT chaotic
+# (lambda_max goes +0.287 -> -0.631: it settles into a period-1 return-map
+# orbit where the reset of neuron 2 pushes neuron 1 over threshold and both
+# fire in the same instant). Switching this figure to the corrected rule
+# means re-finding a reference network; see the scn2ppm notes.
+scn.RESET_RULE = 'skip'
 
 style.setup()
 # User-requested font sizes (match Fig 4)
@@ -200,6 +214,11 @@ def jacobian_fd(xi, bi, sys_dict, eps=FD_EPS):
     branch. Returns (xi_next, bj, J) or (None, -1, None) on step failure or
     branch flip inside the eps ball (in which case the map is not smooth
     at xi and the FD is meaningless).
+
+    No longer used for the figure: lyapunov_qr takes the exact Jacobian from
+    the branch's transition matrix via scn.step_jacobian. Kept as the
+    independent cross-check that validated it (agreement 1.5e-9 per step,
+    spectra equal to five decimals).
     """
     xi = np.atleast_1d(xi).astype(float).ravel()
     m = len(xi)
@@ -253,7 +272,7 @@ def lyapunov_qr(sys_dict, n_transient, n_record, n_segments=1,
     total_steps = 0
     for _ in range(n_segments):
         for _ in range(n_record):
-            xi_new, bi_new, J = jacobian_fd(xi, bi, sys_dict)
+            xi_new, bi_new, J, _ = scn.step_jacobian(xi, bi, sys_dict)
             if xi_new is None or J is None:
                 return None
             Qnew, R = np.linalg.qr(J @ Q)
@@ -456,7 +475,12 @@ def make_figure(sys_paper, min_cos, lam_max, paper_min_cos, paper_lam_max,
                           hspace=0.55, wspace=0.30)
     ax_a = fig.add_subplot(gs[0, 0])
     ax_b = fig.add_subplot(gs[0, 1])
-    ax_c = fig.add_subplot(gs[0, 2], projection='3d')   # 3D lifted view
+    # computed_zorder=False keeps the explicit order the clipped bound pieces
+    # are given; 'ortho' makes the chart-to-screen map affine, which the
+    # clipping has to invert.
+    ax_c = fig.add_subplot(gs[0, 2], projection='3d',
+                           computed_zorder=False)       # 3D lifted view
+    ax_c.set_proj_type('ortho')
     ax_d = fig.add_subplot(gs[0, 3])                    # 2D tangent view
     ax_e = fig.add_subplot(gs[1, :])                    # spike raster
 
@@ -522,10 +546,11 @@ def make_figure(sys_paper, min_cos, lam_max, paper_min_cos, paper_lam_max,
     # its traces on all K bound planes. For each bound b, lift that bound's
     # tangent points back to R^3 via y = alpha_b D_b + E_b xi, and draw the
     # plane itself as a translucent quadrilateral in the neuron's color.
-    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    import bound_planes
     _K = sys_paper['K']
     _rng_c = np.random.default_rng(0)
     _ext_pts = []      # everything that must fit in the 3D box
+    _rects = {}        # patch extent per bound, in that bound's chart
     for _b in range(_K):
         _sel = (attr_bis == _b)
         if not np.any(_sel):
@@ -542,19 +567,22 @@ def make_figure(sys_paper, min_cos, lam_max, paper_min_cos, paper_lam_max,
         _corners_xi = np.array([[_lo[0], _lo[1]], [_hi[0], _lo[1]],
                                 [_hi[0], _hi[1]], [_lo[0], _hi[1]]])
         _corners = _foot[None, :] + _corners_xi @ _ES_b.T
-        ax_c.add_collection3d(Poly3DCollection(
-            [_corners.tolist()], alpha=0.08,
-            facecolor=style.NEURON_COLORS[_b],
-            edgecolor=style.NEURON_COLORS[_b], linewidth=0.9))
+        # The planes themselves are drawn further down, once the view and the
+        # limits are fixed: only then is it known which part of each is in
+        # front. Here we just record the patch extent.
+        _rects[_b] = (float(_lo[0]), float(_hi[0]),
+                      float(_lo[1]), float(_hi[1]))
 
         # Subsample for a vector-friendly file size, then plot in the
         # neuron's color so (c) keys to the raster in (e).
         if len(_pts3d) > ATTR_PLOT_MAX:
             _idx = _rng_c.choice(len(_pts3d), ATTR_PLOT_MAX, replace=False)
             _pts3d = _pts3d[_idx]
+        # Explicit zorder, above every bound piece: with computed_zorder off
+        # the painting order is ours, and the planes belong behind the ink.
         ax_c.scatter(_pts3d[:, 0], _pts3d[:, 1], _pts3d[:, 2],
                      s=2.0, c=style.NEURON_COLORS[_b], alpha=0.55,
-                     linewidths=0, depthshade=False, marker='s',
+                     linewidths=0, depthshade=False, marker='s', zorder=5,
                      label=rf'$\mathcal{{B}}_{_b+1}$')
         _ext_pts.append(_pts3d)
         _ext_pts.append(_corners)
@@ -580,6 +608,32 @@ def make_figure(sys_paper, min_cos, lam_max, paper_min_cos, paper_lam_max,
         ax_c.set_box_aspect((1, 1, 1))
     except Exception:
         pass
+
+    # Bounds last, and only where each one is actually in front. Matplotlib
+    # composites a Poly3DCollection by one depth key, so four interpenetrating
+    # translucent planes come out ordered wrongly almost everywhere; cutting
+    # each to its visible part is how simon_rbygyb_paper draws them.
+    _present = sorted(_rects)
+    bound_planes.draw_visible_planes(
+        ax_c,
+        [sys_paper['DS'][b] for b in _present],
+        [sys_paper['ES'][b] for b in _present],
+        [sys_paper['alphas'][b] for b in _present],
+        [_rects[b] for b in _present],
+        [style.NEURON_COLORS[b] for b in _present],
+        alpha=0.32)
+
+    # Filled panes and a full grid compete with four translucent planes for
+    # the same ink. The planes carry the depth cues themselves, as they do in
+    # simon_rbygyb_paper, so drop the panes and keep the grid faint. The ticks
+    # stay: unlike that schematic, this panel is a quantitative phase-space
+    # view and the reader needs the scale.
+    for _pane in (ax_c.xaxis.pane, ax_c.yaxis.pane, ax_c.zaxis.pane):
+        _pane.set_edgecolor((0, 0, 0, 0))
+        _pane.fill = False
+    ax_c.grid(True)
+    for _axis in (ax_c.xaxis, ax_c.yaxis, ax_c.zaxis):
+        _axis._axinfo['grid'].update(color=(0, 0, 0, 0.10), linewidth=0.6)
 
     # ---- Panel (d): strange attractor in the tangent chart ----------------
     # A tangent chart is defined on ONE bound, so this panel shows the
@@ -620,7 +674,8 @@ def make_figure(sys_paper, min_cos, lam_max, paper_min_cos, paper_lam_max,
     for ax, letter, sub in ((ax_a, 'a', 'Regime survey'),
                             (ax_b, 'b', 'IC sensitivity'),
                             (ax_c, 'c', 'Strange attractor'),
-                            (ax_d, 'd', f'Tangent chart on B{int(attr_bound)+1}'),
+                            (ax_d, 'd',
+                             rf'Tangent chart on $\mathcal{{B}}_{int(attr_bound) + 1}$'),
                             (ax_e, 'e', 'Chaotic spike raster')):
         cell = ax.get_subplotspec().get_position(fig)
         fig.text(cell.x0, cell.y1 + 0.015, f'({letter}) {sub}',
